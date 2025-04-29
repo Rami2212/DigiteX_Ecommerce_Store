@@ -4,7 +4,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 // Routes
-//const userRoutes = require('./routes/user.routes');
+const userRoutes = require('./routes/user.routes');
 
 
 const app = express();
@@ -21,7 +21,7 @@ connectDB();
 app.get('/', (req, res) => {
     res.send('Hello from Express.js backend!');
 });
-//app.use('/api/users', userRoutes);
+app.use('/api/users', userRoutes);
 
 
 // Start server
