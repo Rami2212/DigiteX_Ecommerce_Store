@@ -1,19 +1,30 @@
-// server.js
 const express = require('express');
-const mongoose = require('mongoose');
+const connectDB = require("./config/db");
 const cors = require('cors');
 require('dotenv').config();
 
+// Routes
+//const userRoutes = require('./routes/user.routes');
+
+
 const app = express();
-app.use(express.json());
-app.use(cors());
-app.use('/uploads', express.static('uploads'));
-
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.error(err));
-
-app.get('/', (req, res) => res.send('DigiteX API running'));
-
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Connect to MongoDB
+connectDB();
+
+// Routes
+app.get('/', (req, res) => {
+    res.send('Hello from Express.js backend!');
+});
+//app.use('/api/users', userRoutes);
+
+
+// Start server
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
