@@ -19,7 +19,7 @@ connectDB();
 
 // Routes
 app.get('/', (req, res) => {
-    res.send('Hello from Express.js backend!');
+    res.send('Hello from backend!');
 });
 app.use('/api/users', userRoutes);
 

@@ -6,7 +6,7 @@ const userController = require('../controllers/user.controller');
 router.post('/register', userController.registerUser);
 
 // Email verification
-router.get('/verify-email', userController.verifyEmail);
+router.post('/verify-otp', userController.verifyOtp);
 
 // Login (with email or username)
 router.post('/login', userController.loginUser);

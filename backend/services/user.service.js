@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
 const {sendVerificationEmail} = require("../utils/sendEmail");
+const crypto = require('crypto');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -17,7 +18,10 @@ exports.registerUser = async (data) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString();
+
+    const otp = generateOtp();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // valid for 10 mins
 
     const newUser = await User.create({
         ...rest,
@@ -25,12 +29,16 @@ exports.registerUser = async (data) => {
         username,
         password: hashedPassword,
         profileImage: '',
-        verificationToken,
+        otp,
+        otpExpires,
     });
 
-    await sendVerificationEmail(email, verificationToken);
+    await sendVerificationEmail(email, otp);
 
-    return { message: 'Verification email sent. Please check your inbox.' };
+    return {
+        message: 'User registered. OTP sent to email.',
+        id: newUser._id,
+    };
 };
 
 exports.loginUser = async (identifier, password) => {
@@ -66,17 +74,18 @@ exports.loginUser = async (identifier, password) => {
     };
 };
 
-exports.verifyEmail = async (token) => {
-    if (!token) throw { statusCode: 400, message: 'Token is required' };
+exports.verifyOtp = async ({ email, otp }) => {
+    const user = await User.findOne({ email });
 
-    const user = await User.findOne({ verificationToken: token });
-
-    if (!user) throw { statusCode: 400, message: 'Invalid or expired token' };
+    if (!user || user.otp !== otp || user.otpExpires < new Date()) {
+        throw new Error('Invalid or expired OTP');
+    }
 
     user.isVerified = true;
-    user.verificationToken = null;
+    user.otp = null;
+    user.otpExpires = null;
     await user.save();
 
-    return 'Email verified successfully!';
+    return { message: 'Email verified successfully!' };
 };
 
