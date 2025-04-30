@@ -1,15 +1,15 @@
 // utils/sendEmail.js
 const nodemailer = require('nodemailer');
 
-exports.sendVerificationEmail = async (email, otp) => {
-    const transporter = nodemailer.createTransport({
-        service: 'Gmail',
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
-        },
-    });
+const transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
 
+exports.sendVerificationEmail = async (email, otp) => {
     await transporter.sendMail({
         from: `"DigiteX" <${process.env.SMTP_EMAIL}>`,
         to: email,
@@ -37,4 +37,42 @@ exports.sendVerificationEmail = async (email, otp) => {
               `
     });
 
+};
+
+exports.sendResetPasswordEmail = async (email, url) => {
+    await transporter.sendMail({
+        from: `"DigiteX Support" <${process.env.SMTP_EMAIL}>`,
+        to: email,
+        subject: 'Reset Your Password - DigiteX',
+        html: `
+            <div style="font-family: Arial; padding: 20px;">
+                <h2>Password Reset Request</h2>
+                <p>You requested a password reset. Click the button below to reset your password:</p>
+                <a href="${url}" style="background-color:#1E90FF;color:white;padding:10px 20px;border-radius:5px;text-decoration:none;">Reset Password</a>
+                <p style="margin-top:20px;">If you didn’t request this, you can ignore this email.</p>
+                <hr>
+                <small>This link will expire in 10 minutes.</small>
+            </div>
+        `,
+    });
+};
+
+exports.resendVerificationEmail = async (email, otp) => {
+    const html = `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+            <h2>Verify your Email – DigiteX</h2>
+            <p>Thanks for signing up! Use the OTP below to verify your email:</p>
+            <div style="font-size: 24px; font-weight: bold; color: #1E90FF;">${otp}</div>
+            <p>This code will expire in 10 minutes.</p>
+            <br />
+            <p style="font-size: 12px; color: #888;">If you didn't request this, you can safely ignore it.</p>
+        </div>
+    `;
+
+    await transporter.sendMail({
+        from: `"DigiteX" <${process.env.SMTP_EMAIL}>`,
+        to: email,
+        subject: 'Verify your Email - DigiteX',
+        html
+    });
 };
