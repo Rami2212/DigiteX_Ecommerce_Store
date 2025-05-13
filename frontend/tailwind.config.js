@@ -4,6 +4,7 @@ module.exports = {
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/**/*.{js,ts,jsx,tsx,mdx}', // Added src folder explicitly
   ],
   darkMode: 'class',
   theme: {
@@ -36,6 +37,12 @@ module.exports = {
           800: '#1e40af',
           900: '#1e3a8a',
           950: '#172554',
+        },
+        // Dark mode specific colors
+        dark: {
+          background: '#121212',
+          card: '#1e1e1e',
+          text: '#f3f4f6',
         },
       },
     },

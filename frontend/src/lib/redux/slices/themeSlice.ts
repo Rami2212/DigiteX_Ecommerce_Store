@@ -1,13 +1,15 @@
-// 📄 src/lib/redux/slices/themeSlice.ts
+'use client';
+
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Theme, getThemeFromLocalStorage, setThemeInLocalStorage, applyTheme } from '@/utils/theme';
+
+export type Theme = 'light' | 'dark' | 'system';
 
 interface ThemeState {
   mode: Theme;
 }
 
 const initialState: ThemeState = {
-  mode: 'system', // Default value; real theme applied via useEffect/init
+  mode: 'system', // Default value
 };
 
 const themeSlice = createSlice({
@@ -16,13 +18,10 @@ const themeSlice = createSlice({
   reducers: {
     setTheme: (state, action: PayloadAction<Theme>) => {
       state.mode = action.payload;
-      setThemeInLocalStorage(action.payload);
-      applyTheme(action.payload);
     },
     initTheme: (state) => {
-      const savedTheme = getThemeFromLocalStorage();
-      state.mode = savedTheme;
-      applyTheme(savedTheme);
+      // The actual theme application happens in the ThemeSwitcher component
+      // This action is here to indicate theme initialization
     },
   },
 });
