@@ -20,8 +20,14 @@ const themeSlice = createSlice({
       state.mode = action.payload;
     },
     initTheme: (state) => {
-      // The actual theme application happens in the ThemeSwitcher component
-      // This action is here to indicate theme initialization
+      if (typeof window !== 'undefined') {
+        const storedTheme = localStorage.getItem('theme') as Theme | null;
+        if (storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'system') {
+          state.mode = storedTheme;
+        } else {
+          state.mode = 'system';
+        }
+      }
     },
   },
 });
