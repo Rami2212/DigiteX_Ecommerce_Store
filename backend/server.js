@@ -7,8 +7,7 @@ const passport = require('passport');
 require('./config/passport');
 
 // Routes
-const userRoutes = require('./routes/auth.routes');
-
+const authRoutes = require('./routes/auth.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,7 +32,7 @@ connectDB();
 app.get('/', (req, res) => {
     res.send('Hello from backend!');
 });
-app.use('/api/users', userRoutes);
+app.use('/api/auth', authRoutes);
 
 
 // Start server

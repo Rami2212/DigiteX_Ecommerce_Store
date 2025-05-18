@@ -42,6 +42,7 @@ exports.registerUser = async (data) => {
 };
 
 exports.loginUser = async (identifier, password) => {
+
     const user = await User.findOne({
         $or: [{ email: identifier }, { username: identifier }],
     });
