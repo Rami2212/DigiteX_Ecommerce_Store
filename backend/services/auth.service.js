@@ -69,6 +69,7 @@ exports.loginUser = async (identifier, password) => {
             email: user.email,
             phone: user.phone || '',
             role: user.role,
+            isVerified: user.isVerified,
             profileImage: user.profileImage || '',
         },
     };

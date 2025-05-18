@@ -27,7 +27,7 @@ router.get('/google',
 );
 
 router.get('/google/callback',
-    passport.authenticate('google', { failureRedirect: '/login' }),
+    passport.authenticate('google', { failureRedirect: 'auth/login' }),
     userController.handleSocialLogin
 );
 

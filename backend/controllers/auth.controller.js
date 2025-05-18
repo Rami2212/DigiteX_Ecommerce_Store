@@ -78,9 +78,9 @@ exports.handleSocialLogin = async (req, res) => {
     try {
         const user = req.user; // comes from passport
         const token = await userService.generateToken(user);
-        res.redirect(`${process.env.CLIENT_URL}/auth-success?token=${token}`);
+        res.redirect(`${process.env.CLIENT_URL}/auth/auth-success?token=${token}`);
     } catch (err) {
         console.error('Social login error:', err);
-        res.redirect(`${process.env.CLIENT_URL}/auth-failed`);
+        res.redirect(`${process.env.CLIENT_URL}/auth/auth-failed`);
     }
 };

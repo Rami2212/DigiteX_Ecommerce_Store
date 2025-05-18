@@ -1,47 +1,28 @@
 {
   "name": "frontend",
-  "version": "0.1.0",
   "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "vite",
+    "build": "vite build",
+    "start": "npm run dev",
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.0.1",
-    "@reduxjs/toolkit": "^2.8.1",
-    "axios": "^1.9.0",
-    "formik": "^2.4.6",
-    "jwt-decode": "^4.0.0",
-    "lucide-react": "^0.510.0",
-    "next": "15.3.2",
-    "next-auth": "^4.24.11",
-    "next-themes": "^0.4.6",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-hook-form": "^7.56.3",
-    "react-hot-toast": "^2.5.2",
-    "react-icons": "^5.5.0",
-    "react-phone-input-2": "^2.15.1",
-    "react-redux": "^9.2.0",
-    "tailwind-merge": "^3.3.0",
-    "yup": "^1.6.1",
-    "zod": "^3.24.4"
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "@types/react-redux": "^7.1.34",
-    "autoprefixer": "^10.4.21",
-    "eslint": "^9",
-    "eslint-config-next": "15.3.2",
-    "install": "^0.13.0",
-    "npm": "^11.3.0",
-    "postcss": "^8.5.3",
-    "tailwindcss": "^3.4.17",
-    "typescript": "^5"
+    "@eslint/js": "^9.25.0",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "eslint": "^9.25.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "vite": "^6.3.5"
   }
 }
