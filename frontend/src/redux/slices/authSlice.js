@@ -15,6 +15,8 @@ try {
 const initialState = {
   user: userFromStorage,
   token: localStorage.getItem('token') || null,
+  role: localStorage.getItem('role') || null,
+  isAdmin: localStorage.getItem('role') === 'admin',
   isLoading: false,
   error: null,
   isAuthenticated: !!localStorage.getItem('token'),
@@ -32,9 +34,11 @@ const authSlice = createSlice({
       state.isLoading = false;
       state.user = action.payload.user;
       state.token = action.payload.token;
+      state.role = action.payload.user.role;
       state.isAuthenticated = true;
       localStorage.setItem('token', action.payload.token);
       localStorage.setItem('user', JSON.stringify(action.payload.user));
+      localStorage.setItem('role', action.payload.user.role);
     },
     loginFailure: (state, action) => {
       state.isLoading = false;
@@ -47,6 +51,7 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      localStorage.removeItem('role');
     },
     registerStart: (state) => {
       state.isLoading = true;

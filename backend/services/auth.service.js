@@ -76,6 +76,46 @@ exports.loginUser = async (identifier, password) => {
     };
 };
 
+exports.loginAdmin = async (identifier, password) => {
+    // Find the user by email or username
+    const user = await User.findOne({
+        $or: [{ email: identifier }, { username: identifier }],
+    });
+
+    // If user is not found, throw an error
+    if (!user) throw new Error('Invalid credentials');
+
+    // Check if the provided password matches the stored hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) throw new Error('Invalid credentials');
+
+    // Check if the user is an admin
+    if (user.role !== 'admin') throw new Error('Access denied. Admins only.');
+
+    // Generate a JWT token for the admin
+    const token = jwt.sign(
+        { id: user._id, role: user.role },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+    );
+
+    // Return the token and user details
+    return {
+        token,
+        user: {
+            id: user._id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            username: user.username,
+            email: user.email,
+            phone: user.phone || '',
+            role: user.role,
+            isVerified: user.isVerified,
+            profileImage: user.profileImage || '',
+        },
+    };
+};
+
 exports.verifyOtp = async ({ email, otp }) => {
     const user = await User.findOne({ email });
 

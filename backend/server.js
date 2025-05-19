@@ -8,6 +8,7 @@ require('./config/passport');
 
 // Routes
 const authRoutes = require('./routes/auth.routes');
+const categoryRoutes = require('./routes/category.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,6 +34,7 @@ app.get('/', (req, res) => {
     res.send('Hello from backend!');
 });
 app.use('/api/auth', authRoutes);
+app.use('/api/categories', categoryRoutes);
 
 
 // Start server

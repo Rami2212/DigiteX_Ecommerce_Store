@@ -10,6 +10,11 @@ export const authAPI = {
     const response = await api.post('/auth/login', credentials);
     return response.data;
   },
+
+  adminLogin: async (credentials) => {
+    const response = await api.post('/auth/admin/login', credentials);
+    return response.data;
+  },
   
   verifyOtp: async (data) => {
     const response = await api.post('/auth/verify-otp', data);

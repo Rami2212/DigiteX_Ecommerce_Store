@@ -16,7 +16,7 @@ import { toast } from 'react-toastify';
 export const useAuth = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user, token, isLoading, error, isAuthenticated } = useSelector((state) => state.auth);
+  const { user, token, isLoading, error, isAuthenticated, isAdmin } = useSelector((state) => state.auth);
 
   const login = async (credentials) => {
     try {
@@ -41,6 +41,22 @@ export const useAuth = () => {
       throw error;
     }
   };
+
+  const adminLogin = async (credentials) => {
+    try {
+      dispatch(loginStart());
+      const data = await authAPI.adminLogin(credentials);
+      dispatch(loginSuccess(data));
+      toast.success('Admin login successful!');
+      navigate('/admin/dashboard');
+      return data;
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || 'Admin login failed';
+      toast.error(errorMessage);
+      dispatch(loginFailure(errorMessage));
+      throw error;
+    }
+  }
 
   const register = async (userData) => {
     try {
@@ -124,7 +140,9 @@ export const useAuth = () => {
     isLoading,
     error,
     isAuthenticated,
+    isAdmin,
     login,
+    adminLogin,
     register,
     verifyOtp,
     resendOtp,

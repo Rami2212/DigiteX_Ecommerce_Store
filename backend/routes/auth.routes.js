@@ -1,25 +1,28 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport')
-const userController = require('../controllers/auth.controller');
+const authController = require('../controllers/auth.controller');
 
 // Register user
-router.post('/register', userController.registerUser);
+router.post('/register', authController.registerUser);
 
 // Email verification
-router.post('/verify-otp', userController.verifyOtp);
+router.post('/verify-otp', authController.verifyOtp);
 
 // Login (with email or username)
-router.post('/login', userController.loginUser);
+router.post('/login', authController.loginUser);
+
+// Admin Login
+router.post('/admin/login', authController.loginAdmin);
 
 // Forgot password
-router.post('/forgot-password', userController.forgotPassword);
+router.post('/forgot-password', authController.forgotPassword);
 
 // Reset password
-router.post('/reset-password/:token', userController.resetPassword);
+router.post('/reset-password/:token', authController.resetPassword);
 
 // Send otp
-router.post('/send-otp', userController.resendOtp);
+router.post('/send-otp', authController.resendOtp);
 
 // Google OAuth
 router.get('/google',
@@ -28,7 +31,7 @@ router.get('/google',
 
 router.get('/google/callback',
     passport.authenticate('google', { failureRedirect: 'auth/login' }),
-    userController.handleSocialLogin
+    authController.handleSocialLogin
 );
 
 module.exports = router;
