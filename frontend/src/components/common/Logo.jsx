@@ -5,9 +5,9 @@ import logo from '../../assets/logo.png';
 
 const Logo = ({ size = 'default', linkTo = '/', className = '' }) => {
   const sizeClasses = {
-    small: 'h-24',
-    default: 'h-32',
-    large: 'h-48',
+    small: 'h-12',
+    default: 'h-18',
+    large: 'h-24',
   };
 
   return (

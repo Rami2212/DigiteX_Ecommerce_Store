@@ -103,7 +103,7 @@ exports.forgotPassword = async (email) => {
     user.resetPasswordExpire = expiry;
     await user.save();
 
-    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+    const resetUrl = `${process.env.CLIENT_URL}/auth/reset-password/${resetToken}`;
     await sendResetPasswordEmail(email, resetUrl);
 
     return { message: 'Reset link sent to email', resetToken };

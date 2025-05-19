@@ -6,7 +6,6 @@ import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import Logo from '../../components/common/Logo';
 import { useAuth } from '../../hooks/useAuth';
-import { useTheme } from '../../hooks/useTheme';
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -18,17 +17,7 @@ const LoginPage = () => {
   const [errors, setErrors] = useState({});
 
   // Custom hooks
-  const { login, isLoading, error, isAuthenticated, clearAuthError } = useAuth();
-  const { theme } = useTheme();
-
-  // Apply theme
-  useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [theme]);
+  const { login, isLoading, error, clearAuthError } = useAuth();
 
   // Clear errors when component unmounts or when user starts typing
   useEffect(() => {
@@ -43,13 +32,11 @@ const LoginPage = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-    
-    // Clear local errors when user starts typing
+
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
 
-    // Clear global auth errors when user types
     if (error) {
       clearAuthError();
     }
@@ -57,11 +44,11 @@ const LoginPage = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.identifier.trim()) {
       newErrors.identifier = 'Email or username is required';
     }
-    
+
     if (!formData.password) {
       newErrors.password = 'Password is required';
     }
@@ -69,24 +56,23 @@ const LoginPage = () => {
     if (formData.password && formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     try {
       await login({
         identifier: formData.identifier,
         password: formData.password,
       });
-      // Success is handled in the useAuth hook (redirect to dashboard)
+      // redirects
     } catch (err) {
-      // Error is handled in the useAuth hook (display toast)
       console.error('Login failed:', err);
     }
   };
@@ -104,7 +90,7 @@ const LoginPage = () => {
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { 
+    visible: {
       opacity: 1,
       transition: { staggerChildren: 0.1 }
     }
@@ -112,15 +98,15 @@ const LoginPage = () => {
 
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
-    visible: { 
-      y: 0, 
+    visible: {
+      y: 0,
       opacity: 1,
       transition: { type: 'spring', stiffness: 100 }
     }
   };
 
   return (
-    <motion.div 
+    <motion.div
       className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md"
       variants={containerVariants}
       initial="hidden"
@@ -142,7 +128,6 @@ const LoginPage = () => {
       </motion.div>
 
       <motion.form variants={itemVariants} className="space-y-6" onSubmit={handleSubmit}>
-        {/* Display auth error from Redux store */}
         {error && (
           <div className="bg-red-50 dark:bg-red-900/30 p-4 rounded-md flex items-start space-x-2">
             <FiAlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
@@ -195,11 +180,11 @@ const LoginPage = () => {
           </div>
         </div>
 
-        <div className="flex items-right justify-right">            
+        <div className="flex items-right justify-right">
 
           <div className="text-sm">
-            <a 
-              href="/auth/forgot-password" 
+            <a
+              href="/auth/forgot-password"
               className="font-medium text-primary hover:text-primary-dark transition-colors"
             >
               Forgot your password?

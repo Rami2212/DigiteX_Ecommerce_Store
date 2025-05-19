@@ -3,16 +3,16 @@ import { useNavigate, Outlet } from 'react-router-dom';
 import AuthHeader from '../components/auth/AuthHeader';
 import { useAuth } from '../hooks/useAuth';
 
-const AuthLayout = ({ children }) => {
+const AuthLayout = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [checkedAuth, setCheckedAuth] = useState(false); // prevent premature render
+  const [checkedAuth, setCheckedAuth] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated === true) {
-      navigate('/dashboard'); // already logged in
+      navigate('/dashboard');
     } else {
-      setCheckedAuth(true); // proceed to show auth page
+      setCheckedAuth(true);
     }
   }, [isAuthenticated, navigate]);
 
