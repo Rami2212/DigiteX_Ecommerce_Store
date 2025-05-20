@@ -183,27 +183,8 @@ exports.resendOtp = async (email) => {
     return { message: 'OTP resent successfully' };
 };
 
-exports.createOrFindSocialUser = async (profile, provider) => {
-    const email = profile.emails?.[0]?.value;
-    if (!email) throw new Error('Email not found from provider');
-
-    let user = await User.findOne({ email });
-    if (!user) {
-        user = await User.create({
-            firstName: profile.name.givenName,
-            lastName: profile.name.familyName,
-            username: email.split('@')[0],
-            email,
-            isVerified: true,
-            profileImage: profile.photos?.[0]?.value || '',
-            provider,
-        });
-    }
-    return user;
-};
-
 exports.generateToken = (user) => {
-    return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
+    return jwt.sign({ id: user._id, role: user.role, firstName: user.firstName, lastName: user.lastName, email: user.email, username: user.username, profileImage: user.profileImage }, process.env.JWT_SECRET, {
         expiresIn: '7d',
     });
 };

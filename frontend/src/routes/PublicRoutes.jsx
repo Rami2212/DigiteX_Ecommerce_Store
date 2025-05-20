@@ -12,6 +12,8 @@ import Register from '../pages/auth/Register';
 import VerifyEmail from '../pages/auth/VerifyEmail';
 import ForgotPassword from '../pages/auth/ForgotPassword';
 import ResetPassword from '../pages/auth/ResetPassword';
+import AuthSuccess from '../pages/auth/AuthSuccess';
+import AuthFailed from '../pages/auth/AuthFailed';
 
 // Placeholder pages
 const HomePage = () => <div>Home Page</div>;
@@ -30,6 +32,8 @@ const PublicRoutes = () => {
           <Route path="verify-email" element={<VerifyEmail />} />
           <Route path="forgot-password" element={<ForgotPassword />} />
           <Route path="reset-password/:token" element={<ResetPassword />} />
+          <Route path="auth-success" element={<AuthSuccess />} />
+          <Route path="auth-failed" element={<AuthFailed />} />
         </Route>
 
         {/* Public Routes */}

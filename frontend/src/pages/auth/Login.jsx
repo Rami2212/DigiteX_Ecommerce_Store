@@ -78,9 +78,7 @@ const LoginPage = () => {
   };
 
   const handleGoogleLogin = () => {
-    // Implement Google OAuth login
-    console.log('Google login clicked');
-    // You can implement Google OAuth here
+    window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/google`;
   };
 
   const togglePasswordVisibility = () => {

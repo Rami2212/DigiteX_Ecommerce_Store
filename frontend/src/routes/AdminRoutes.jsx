@@ -1,48 +1,67 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
-import { useSelector } from 'react-redux';
+import { useAuth } from '../hooks/useAuth';
 
-// Layouts
+// Import admin components
 import AdminLayout from '../layouts/AdminLayout';
-
-// Admin pages
-// Import your admin pages here
+import AdminLogin from '../pages/admin/AdminLogin';
+import AdminDashboard from '../pages/admin/AdminDashboard';
 
 const AdminRoutes = () => {
-  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const { isAuthenticated, isAdmin, isLoading } = useAuth();
 
-  // Redirect to login if not authenticated or not an admin
-  if (!isAuthenticated) {
-    return <Navigate to="/auth/login" replace />;
-  }
-
-  if (!user?.isAdmin) {
-    return <Navigate to="/" replace />;
+  // Show loading while checking auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <AnimatePresence mode="wait">
-      <Routes>
-        <Route element={<AdminLayout />}>
-          <Route path="/" element={<AdminDashboard />} />
-          <Route path="/users" element={<AdminUsers />} />
-          {/* Add other admin routes here */}
-          {/* Example:
-          <Route path="/settings" element={<AdminSettings />} />
-          <Route path="/reports" element={<AdminReports />} />
-          */}
-          
-          {/* Catch all route */}
-          <Route path="*" element={<Navigate to="/admin" replace />} />
-        </Route>
-      </Routes>
-    </AnimatePresence>
+    <Routes>
+      {/* Admin login route - accessible when not authenticated */}
+      <Route 
+        path="/login" 
+        element={
+          isAuthenticated && isAdmin ? (
+            <Navigate to="/admin" replace />
+          ) : (
+            <AdminLogin />
+          )
+        } 
+      />
+      
+      {/* Protected admin routes */}
+      <Route 
+        path="/*" 
+        element={
+          isAuthenticated && isAdmin ? (
+            <AdminLayout />
+          ) : (
+            <Navigate to="/admin/login" replace />
+          )
+        }
+      >
+        {/* Default admin dashboard */}
+        <Route index element={<AdminDashboard />} />
+        
+        {/* Other admin routes */}
+        <Route path="users" element={<div>Users Management</div>} />
+        <Route path="users/new" element={<div>Add New User</div>} />
+        <Route path="content/*" element={<div>Content Management</div>} />
+        <Route path="media/*" element={<div>Media Management</div>} />
+        <Route path="settings/*" element={<div>Settings</div>} />
+        
+        {/* Catch all - redirect to dashboard */}
+        <Route path="*" element={<Navigate to="/admin" replace />} />
+      </Route>
+    </Routes>
   );
 };
-
-// Placeholder components until you create the actual pages
-const AdminDashboard = () => <div>Admin Dashboard</div>;
-const AdminUsers = () => <div>Admin Users Management</div>;
 
 export default AdminRoutes;

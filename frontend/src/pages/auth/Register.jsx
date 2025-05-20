@@ -26,7 +26,7 @@ const RegisterPage = () => {
     // Custom hooks
     const { register, isLoading, error, clearAuthError } = useAuth();
 
-    // Clear errors when component unmounts or when user starts typing
+    // Clear errors
     useEffect(() => {
         return () => {
             clearAuthError();
@@ -103,7 +103,6 @@ const RegisterPage = () => {
             // Store email in localStorage for OTP verification
             localStorage.setItem('registrationEmail', formData.email);
 
-            // Prepare data for registration
             const { confirmPassword, ...registrationData } = formData;
 
             await register(registrationData);
@@ -113,8 +112,7 @@ const RegisterPage = () => {
     };
 
     const handleGoogleRegister = () => {
-        // Implement Google OAuth registration
-        console.log('Google registration clicked');
+        window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/google`;
     };
 
     const togglePasswordVisibility = () => {
