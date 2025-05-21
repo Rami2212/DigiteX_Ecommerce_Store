@@ -6,6 +6,9 @@ import { useAuth } from '../hooks/useAuth';
 import AdminLayout from '../layouts/AdminLayout';
 import AdminLogin from '../pages/admin/AdminLogin';
 import AdminDashboard from '../pages/admin/AdminDashboard';
+import CategoriesPage from '../pages/admin/categories/categories';
+import AddCategoryPage from '../pages/admin/categories/AddCategory';
+import EditCategoryPage from '../pages/admin/categories/EditCategory';
 
 const AdminRoutes = () => {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
@@ -29,7 +32,7 @@ const AdminRoutes = () => {
         path="/login" 
         element={
           isAuthenticated && isAdmin ? (
-            <Navigate to="/admin" replace />
+            <AdminLayout />
           ) : (
             <AdminLogin />
           )
@@ -43,7 +46,7 @@ const AdminRoutes = () => {
           isAuthenticated && isAdmin ? (
             <AdminLayout />
           ) : (
-            <Navigate to="/admin/login" replace />
+            <AdminLogin />
           )
         }
       >
@@ -51,11 +54,9 @@ const AdminRoutes = () => {
         <Route index element={<AdminDashboard />} />
         
         {/* Other admin routes */}
-        <Route path="users" element={<div>Users Management</div>} />
-        <Route path="users/new" element={<div>Add New User</div>} />
-        <Route path="content/*" element={<div>Content Management</div>} />
-        <Route path="media/*" element={<div>Media Management</div>} />
-        <Route path="settings/*" element={<div>Settings</div>} />
+        <Route path="categories" element={<CategoriesPage />} />
+        <Route path="add-category" element={<AddCategoryPage />} />
+        <Route path="edit-category/:id" element={<EditCategoryPage />} />
         
         {/* Catch all - redirect to dashboard */}
         <Route path="*" element={<Navigate to="/admin" replace />} />

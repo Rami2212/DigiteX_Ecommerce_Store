@@ -5,6 +5,7 @@ require('dotenv').config();
 const session = require('express-session');
 const passport = require('passport');
 require('./config/passport');
+const path = require('path');
 
 // Routes
 const authRoutes = require('./routes/auth.routes');
@@ -16,6 +17,8 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+app.use('/assets/uploads', express.static(path.join(__dirname, 'assets/uploads')));
 
 app.use(session({
     secret: process.env.SESSION_SECRET,

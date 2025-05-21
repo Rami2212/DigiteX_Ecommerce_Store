@@ -7,6 +7,8 @@ const upload = require('../middleware/upload.middleware');
 
 router.get('/', categoryController.getCategories);
 
+router.get('/:id', categoryController.getCategoryById);
+
 router.post(
     '/',
     authenticate,

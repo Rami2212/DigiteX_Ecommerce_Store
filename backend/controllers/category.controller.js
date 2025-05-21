@@ -27,6 +27,19 @@ exports.getCategories = async (req, res) => {
     }
 };
 
+exports.getCategoryById = async (req, res) => {
+    try {
+        const category = await categoryService.getCategoryById(req.params.id);
+        if (!category) {
+            return res.status(404).json({ message: 'Category not found' });
+        }
+        return res.status(200).json(category);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: err.message || 'Internal Server Error' });
+    }
+}
+
 exports.updateCategory = async (req, res) => {
     try {
         const { error } = updateCategoryDto.validate(req.body);

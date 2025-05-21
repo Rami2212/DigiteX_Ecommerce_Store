@@ -49,6 +49,7 @@ export const useAuth = () => {
       dispatch(loginSuccess(data));
       toast.success('Admin login successful!');
       navigate('/admin/dashboard');
+      window.location.reload();
       return data;
     } catch (error) {
       const errorMessage = error.response?.data?.error || 'Admin login failed';

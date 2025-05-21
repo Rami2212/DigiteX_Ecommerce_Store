@@ -66,7 +66,7 @@ const AdminLogin = () => {
     if (!validateForm()) return;
 
     try {
-      await adminLogin({
+      const data = await adminLogin({
         identifier: formData.identifier,
         password: formData.password,
       });
@@ -105,22 +105,22 @@ const AdminLogin = () => {
         initial="hidden"
         animate="visible"
       >
-        <motion.div variants={itemVariants} className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <Logo size="large" />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Admin Login
-          </h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Sign in to access the admin dashboard
-          </p>
-        </motion.div>
-
         <motion.div
           className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10"
           variants={itemVariants}
         >
+          <motion.div variants={itemVariants} className="text-center mb-8">
+            <div className="flex justify-center mb-4">
+              <Logo size="large" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Admin Login
+            </h1>
+            <p className="mt-2 text-sm text-gray-600">
+              Sign in to access the admin dashboard
+            </p>
+          </motion.div>
+
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
               <div className="bg-red-50 p-4 rounded-md flex items-start space-x-2">

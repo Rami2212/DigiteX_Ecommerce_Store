@@ -71,7 +71,6 @@ const LoginPage = () => {
         identifier: formData.identifier,
         password: formData.password,
       });
-      // redirects
     } catch (err) {
       console.error('Login failed:', err);
     }

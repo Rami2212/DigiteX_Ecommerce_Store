@@ -35,14 +35,12 @@ const AdminSidebar = ({ isOpen, onClose }) => {
       ]
     },
     {
-      title: 'Content',
+      title: 'Categories',
       icon: FiFileText,
-      path: '/admin/content',
+      path: '/admin/Categories',
       children: [
-        { title: 'All Posts', path: '/admin/content/posts' },
-        { title: 'Add New Post', path: '/admin/content/posts/new' },
-        { title: 'Categories', path: '/admin/content/categories' },
-        { title: 'Tags', path: '/admin/content/tags' }
+        { title: 'All Categories', path: '/admin/categories' },
+        { title: 'Add New Category', path: '/admin/add-category' }
       ]
     },
     {
