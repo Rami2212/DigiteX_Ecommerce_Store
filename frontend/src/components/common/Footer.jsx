@@ -42,11 +42,11 @@ const Footer = () => {
   return (
     <footer className="bg-gray-900 text-white">
       {/* Main Footer */}
-      <div className="container py-12">
+      <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Logo and Description */}
           <div className="lg:col-span-2">
-            <Logo className="mb-4" />
+            <Logo size="large" className="mb-4 -ml-6" />
             <p className="text-gray-400 mb-6">
               Digitex Laptop Store offers the latest and most innovative laptops with exceptional customer service. Find your perfect device from our curated selection of premium brands.
             </p>
@@ -88,8 +88,8 @@ const Footer = () => {
       </div>
 
       {/* Newsletter */}
-      <div className="border-t border-gray-800">
-        <div className="container py-8">
+      <div className="border-t border-gray-800 mx-auto px-4">
+        <div className="container py-8 mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
               <h3 className="text-lg font-semibold mb-2">Subscribe to our newsletter</h3>
@@ -113,7 +113,7 @@ const Footer = () => {
 
       {/* Copyright */}
       <div className="bg-gray-950 py-4">
-        <div className="container flex flex-col md:flex-row justify-between items-center">
+        <div className="container flex flex-col md:flex-row justify-between items-center mx-auto px-4">
           <p className="text-gray-500 text-sm mb-2 md:mb-0">
             &copy; {currentYear} Digitex Laptop Store. All rights reserved.
           </p>
