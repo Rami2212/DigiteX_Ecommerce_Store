@@ -61,6 +61,16 @@ exports.forgotPassword = async (req, res) => {
     }
 };
 
+exports.forgotPasswordLoggedIn = async (req, res) => {
+    try {
+        const result = await authService.forgotPasswordLoggedIn(req.body.email);
+        res.status(200).json(result);
+    } catch (err) {
+        console.error(err);
+        res.status(400).json({ error: err.message });
+    }
+};
+
 exports.resetPassword = async (req, res) => {
     try {
         const { token } = req.params;

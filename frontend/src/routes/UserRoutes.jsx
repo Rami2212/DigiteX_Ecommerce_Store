@@ -34,7 +34,7 @@ const UserRoutes = () => {
           <Route path="/edit-profile" element={<EditProfile />} />
           <Route path="/change-email" element={<ChangeEmail />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
-          <Route path="/reset-password" element={<PasswordReset />} />
+          <Route path="/reset-password/:token" element={<PasswordReset />} />
 
           {/* Example:
           <Route path="/settings" element={<UserSettings />} />

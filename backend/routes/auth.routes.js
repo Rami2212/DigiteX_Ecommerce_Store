@@ -19,6 +19,9 @@ router.post('/admin/login', authController.loginAdmin);
 // Forgot password
 router.post('/forgot-password', authController.forgotPassword);
 
+// Forgot password logged in
+router.post('/forgot-password-logged-in', authController.forgotPasswordLoggedIn);
+
 // Reset password
 router.post('/reset-password/:token', authController.resetPassword);
 

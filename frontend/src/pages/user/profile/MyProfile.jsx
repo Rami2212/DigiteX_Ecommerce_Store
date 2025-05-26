@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const MyProfile = () => {
-    const { user, isAuthenticated, deleteOwnUser, sendOtp, forgotPassword } = useAuth();
+    const { user, isAuthenticated, deleteOwnUser, sendOtp, forgotPasswordLoggedIn } = useAuth();
     const { isLoading } = useUser();
     const navigate = useNavigate();
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -40,7 +40,7 @@ const MyProfile = () => {
     const handleChangePassword = async () => {
         try {
             localStorage.setItem('verifyEmail', user.email);
-            await forgotPassword(user.email);
+            await forgotPasswordLoggedIn(user.email);
             navigate('/user/reset-password');
         } catch (error) {
             console.error('Error while sending reset link:', error);

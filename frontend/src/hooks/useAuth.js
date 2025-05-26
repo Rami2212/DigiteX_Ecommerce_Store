@@ -34,7 +34,7 @@ export const useAuth = () => {
       const data = await authAPI.login(credentials);
       dispatch(loginSuccess(data));
       toast.success('Login successful!');
-      navigate('/');
+      navigate('/user/dashboard');
       return data;
     } catch (error) {
       const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Login failed';
@@ -93,11 +93,6 @@ export const useAuth = () => {
         navigate('/user/change-email');
         return;
       }
-      if(localStorage.getItem('purpose') === 'profile') {
-        toast.success('Email updated successfully!');
-        navigate('/user/my-profile');
-        return;
-      }
       toast.success('Email verification successful! Please login.');
       navigate('/auth/login');
       return response;
@@ -144,10 +139,23 @@ export const useAuth = () => {
     }
   };
 
+  const forgotPasswordLoggedIn = async (email) => {
+    try {
+      const response = await authAPI.forgotPasswordLoggedIn(email);
+      toast.success('Password reset link sent to your email!');
+      return response;
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || 'Failed to send reset link';
+      toast.error(errorMessage);
+      throw error;
+    }
+  };
+
   const resetPassword = async (token, password) => {
     try {
       const response = await authAPI.resetPassword(token, password);
       toast.success('Password reset successful! Please login.');
+      dispatch(logout());
       navigate('/auth/login');
       return response;
     } catch (error) {
@@ -192,6 +200,7 @@ export const useAuth = () => {
         dispatch(changeEmailStart());
         const data = await userAPI.changeEmail(emailData);
         dispatch(changeEmailSuccess());
+        dispatch(logout());
         toast.success('Verification email sent to new address');
         return data;
       } catch (error) {
@@ -245,6 +254,7 @@ export const useAuth = () => {
     resendOtp,
     sendOtp,
     forgotPassword,
+    forgotPasswordLoggedIn,
     resetPassword,
     logout: logoutUser,
     clearAuthError,

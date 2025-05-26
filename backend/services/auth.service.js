@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
-const { sendVerificationEmail, sendResetPasswordEmail, resendVerificationEmail } = require("../utils/sendEmail");
+const { sendVerificationEmail, sendResetPasswordEmail, sendResetPasswordEmailLoggedIn, resendVerificationEmail } = require("../utils/sendEmail");
 const crypto = require('crypto');
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -144,6 +144,24 @@ exports.forgotPassword = async (email) => {
 
     const resetUrl = `${process.env.CLIENT_URL}/auth/reset-password/${resetToken}`;
     await sendResetPasswordEmail(email, resetUrl);
+
+    return { message: 'Reset link sent to email', resetToken };
+};
+
+exports.forgotPasswordLoggedIn = async (email) => {
+    const user = await User.findOne({ email });
+    if (!user) throw new Error('No user found with that email');
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    const expiry = Date.now() + 10 * 60 * 1000; // 10 mins
+
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpire = expiry;
+    await user.save();
+
+    const resetUrl = `${process.env.CLIENT_URL}/user/reset-password/${resetToken}`;
+    await sendResetPasswordEmailLoggedIn(email, resetUrl);
 
     return { message: 'Reset link sent to email', resetToken };
 };

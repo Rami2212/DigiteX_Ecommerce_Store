@@ -10,7 +10,7 @@ const AuthLayout = () => {
 
   useEffect(() => {
     if (isAuthenticated === true) {
-      navigate('/dashboard');
+      navigate('/user/dashboard');
     } else {
       setCheckedAuth(true);
     }

@@ -130,7 +130,7 @@ exports.deleteUser = async (id) => {
 
 // Change email
 exports.changeEmail = async (userId, newEmail, otp) => {
-    const user = await userRepository.updateOwnProfile(userId);
+    const user = await userRepository.findById(userId);
     if (!user) throw new Error('User not found');
 
     const existingEmail = await userRepository.findByEmail(newEmail);

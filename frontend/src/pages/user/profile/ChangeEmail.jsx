@@ -64,53 +64,76 @@ const ChangeEmail = () => {
             initial="hidden"
             animate="visible"
             variants={containerVariants}
-            className="max-w-md mx-auto p-6 mt-12 bg-white dark:bg-gray-800 shadow-lg rounded-lg"
+            className="space-y-6 mb-12"
         >
             {/* Header */}
-            <motion.div variants={itemVariants} className="flex items-center mb-6">
-                <button onClick={handleGoBack} className="mr-3 text-gray-600 dark:text-gray-300 hover:text-blue-500">
-                    <FiArrowLeft size={20} />
-                </button>
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Change Email</h2>
-            </motion.div>
-
-            {/* Description */}
-            <motion.p variants={itemVariants} className="text-gray-600 dark:text-gray-400 mb-4">
-                Enter your new email address to receive a verification code.
-            </motion.p>
-
-            {/* Email Input */}
-            <motion.div variants={itemVariants} className="mb-4">
-                <label htmlFor="newEmail" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    New Email
-                </label>
-                <div className="relative">
-                    <FiMail className="absolute left-3 top-3 text-gray-400" />
-                    <input
-                        id="newEmail"
-                        type="email"
-                        value={newEmail}
-                        onChange={(e) => {
-                            setNewEmail(e.target.value);
-                            if (error) setError('');
-                        }}
-                        className="pl-10 pr-4 py-2 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="example@email.com"
-                        disabled={isLoading}
-                    />
+            <motion.div
+                variants={itemVariants}
+                className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+            >
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            icon={<FiArrowLeft className="h-8 w-8" />}
+                            onClick={handleGoBack}
+                        />
+                        <div>
+                            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                                Change Email
+                            </h1>
+                            <p className="text-gray-600 dark:text-gray-400">
+                                Enter your new email address to receive a verification code.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center">
+                        <FiMail className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                    </div>
                 </div>
-                {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
             </motion.div>
 
-            {/* Submit Button */}
-            <motion.div variants={itemVariants} className="mt-6">
-                <Button
-                    onClick={handleSubmit}
-                    isLoading={isLoading}
-                    disabled={isLoading}
-                >
-                    {isLoading ? 'Sending...' : 'Send Verification Code'}
-                </Button>
+            {/* Verification Form */}
+            <motion.div
+                variants={itemVariants}
+                className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+            >
+                <div className="space-y-6">
+                    {/* Email Input */}
+                    <motion.div variants={itemVariants} className="mb-4">
+                        <label htmlFor="newEmail" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            New Email
+                        </label>
+                        <div className="relative">
+                            <FiMail className="absolute left-3 top-3 text-gray-400" />
+                            <input
+                                id="newEmail"
+                                type="email"
+                                value={newEmail}
+                                onChange={(e) => {
+                                    setNewEmail(e.target.value);
+                                    if (error) setError('');
+                                }}
+                                className="pl-10 pr-4 py-2 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="example@email.com"
+                                disabled={isLoading}
+                            />
+                        </div>
+                        {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+                    </motion.div>
+
+                    {/* Submit Button */}
+                    <motion.div variants={itemVariants} className="mt-6">
+                        <Button
+                            onClick={handleSubmit}
+                            isLoading={isLoading}
+                            disabled={isLoading}
+                        >
+                            {isLoading ? 'Sending...' : 'Send Verification Code'}
+                        </Button>
+                    </motion.div>
+                </div>
             </motion.div>
         </motion.div>
     );
