@@ -28,7 +28,6 @@ export const useCategory = () => {
     }
   };
 
-  // ✅ useCallback used correctly
   const getCategoryById = useCallback((id) => {
     return categories.find((cat) => cat._id === id || cat._id === parseInt(id)) || null;
   }, [categories]);
@@ -80,7 +79,7 @@ export const useCategory = () => {
     isLoading,
     error,
     getCategories,
-    getCategoryById, // ✅ now memoized properly
+    getCategoryById,
     addCategory,
     updateCategory,
     deleteCategory,

@@ -5,6 +5,12 @@ import { useSelector } from 'react-redux';
 
 // Layouts
 import UserLayout from '../layouts/UserLayout';
+import UserDashboard from '../pages/user/UserDashboard';
+import MyProfile from '../pages/user/profile/MyProfile';
+import EditProfile from '../pages/user/profile/EditProfile';
+import PasswordReset from '../pages/user/profile/ResetPassword';
+import VerifyEmail from '../pages/user/profile/VerifyEmail';
+import ChangeEmail from '../pages/user/profile/ChangeEmail';
 
 // User pages
 // Import your user pages here
@@ -22,8 +28,14 @@ const UserRoutes = () => {
       <Routes>
         <Route element={<UserLayout />}>
           <Route path="/" element={<UserDashboard />} />
-          <Route path="/profile" element={<UserProfile />} />
-          {/* Add other user routes here */}
+
+          {/* Profile */}
+          <Route path="/my-profile" element={<MyProfile />} />
+          <Route path="/edit-profile" element={<EditProfile />} />
+          <Route path="/change-email" element={<ChangeEmail />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/reset-password" element={<PasswordReset />} />
+
           {/* Example:
           <Route path="/settings" element={<UserSettings />} />
           <Route path="/orders" element={<UserOrders />} />
@@ -36,9 +48,5 @@ const UserRoutes = () => {
     </AnimatePresence>
   );
 };
-
-// Placeholder components until you create the actual pages
-const UserDashboard = () => <div>User Dashboard</div>;
-const UserProfile = () => <div>User Profile</div>;
 
 export default UserRoutes;

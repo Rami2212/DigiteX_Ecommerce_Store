@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport')
 const authController = require('../controllers/auth.controller');
+const { authenticate } = require('../middleware/auth.middleware');
 
 // Register user
 router.post('/register', authController.registerUser);
@@ -22,7 +23,10 @@ router.post('/forgot-password', authController.forgotPassword);
 router.post('/reset-password/:token', authController.resetPassword);
 
 // Send otp
-router.post('/send-otp', authController.resendOtp);
+router.post('/resend-otp', authController.resendOtp);
+
+// for email change
+router.post('/send-otp', authenticate, authController.sendOtp);
 
 // Google OAuth
 router.get('/google',

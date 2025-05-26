@@ -20,7 +20,7 @@ const Button = ({
   const variantClasses = {
     primary: 'bg-primary text-white hover:bg-primary-dark focus:ring-primary',
     accent: 'bg-accent text-white hover:bg-accent-dark focus:ring-accent',
-    outline: 'border border-primary text-primary hover:bg-primary hover:text-white focus:ring-primary',
+    outline: 'border border-primary dark:border-gray-300 text-primary dark:text-gray-300 hover:bg-primary hover:text-white focus:ring-primary',
     secondary: 'bg-secondary text-gray-800 hover:bg-secondary-dark focus:ring-secondary',
     ghost: 'text-primary hover:bg-primary/10 focus:ring-primary',
     danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',

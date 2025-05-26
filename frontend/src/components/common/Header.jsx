@@ -19,6 +19,8 @@ import {
 import Logo from './Logo';
 import { useAuth } from '../../hooks/useAuth';
 import { useCategory } from '../../hooks/useCategory';
+import { useTheme } from '../../hooks/useTheme';
+
 
 // Account Dropdown Component
 const AccountDropdown = ({ isAuthenticated, user, logout }) => {
@@ -226,37 +228,18 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [cartCount, setCartCount] = useState(0);
-  const [isDarkMode, setIsDarkMode] = useState(false);
   
   const { isAuthenticated, user, logout } = useAuth();
   const { categories, getCategories } = useCategory();
+  const { theme, toggle } = useTheme();
 
   // Load categories on component mount
   useEffect(() => {
     getCategories();
   }, []);
 
-  // Initialize dark mode from localStorage or system preference
-  useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode');
-    const systemDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialDarkMode = savedDarkMode ? JSON.parse(savedDarkMode) : systemDarkMode;
-    
-    setIsDarkMode(initialDarkMode);
-    if (initialDarkMode) {
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
-
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
-  };
-
-  const toggleDarkMode = () => {
-    const newDarkMode = !isDarkMode;
-    setIsDarkMode(newDarkMode);
-    localStorage.setItem('darkMode', JSON.stringify(newDarkMode));
-    document.documentElement.classList.toggle('dark');
   };
 
   const handleSearch = () => {
@@ -331,11 +314,11 @@ const Header = () => {
           <div className="flex items-center space-x-4">
             {/* Dark Mode Toggle */}
             <button 
-              onClick={toggleDarkMode}
+              onClick={toggle}
               className="hidden md:flex p-2 hover:text-primary transition-colors"
               aria-label="Toggle dark mode"
             >
-              {isDarkMode ? (
+              {theme === 'light' ? (
                 <HiOutlineSun className="h-6 w-6" />
               ) : (
                 <HiOutlineMoon className="h-6 w-6" />
@@ -378,14 +361,14 @@ const Header = () => {
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         handleSearch={handleSearch}
-        isDarkMode={isDarkMode}
-        toggleDarkMode={toggleDarkMode}
+        theme={theme}
+        toggleDarkMode={toggle}
       />
     </header>
   );
 };
 
-const NavigationBar = ({ isMenuOpen, toggleMenu, categories, searchQuery, setSearchQuery, handleSearch, isDarkMode, toggleDarkMode }) => {
+const NavigationBar = ({ isMenuOpen, toggleMenu, categories, searchQuery, setSearchQuery, handleSearch, theme, toggleDarkMode }) => {
   return (
     <nav className="bg-white dark:bg-gray-800 border-t border-b border-gray-200 dark:border-gray-700 transition-colors">
       {/* Desktop Navigation */}
@@ -494,13 +477,10 @@ const NavigationBar = ({ isMenuOpen, toggleMenu, categories, searchQuery, setSea
               
               <li>
                 <button
-                  onClick={() => {
-                    toggleDarkMode();
-                    // Don't close menu when toggling dark mode
-                  }}
+                  onClick={toggleDarkMode}
                   className="flex items-center w-full font-medium text-gray-800 dark:text-gray-200 hover:text-primary transition-colors"
                 >
-                  {isDarkMode ? (
+                  {theme === 'light' ? (
                     <>
                       <HiOutlineSun className="h-5 w-5 mr-3" />
                       Light Mode

@@ -40,6 +40,9 @@ router.put(
 // Delete a user (Admin only)
 router.delete('/:id', authenticate, isAdmin, userController.deleteUser);
 
+// Delete own user account
+router.delete('/deleteownuser/:id', authenticate, userController.deleteOwnUser);
+
 // Change email for logged-in user
 router.put(
     '/change-email',

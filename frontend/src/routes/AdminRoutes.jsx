@@ -9,6 +9,9 @@ import AdminDashboard from '../pages/admin/AdminDashboard';
 import CategoriesPage from '../pages/admin/categories/categories';
 import AddCategoryPage from '../pages/admin/categories/AddCategory';
 import EditCategoryPage from '../pages/admin/categories/EditCategory';
+import UsersPage from '../pages/admin/users/Users';
+import AddUserPage from '../pages/admin/users/AddUser';
+import EditUserPage from '../pages/admin/users/EditUser';
 
 const AdminRoutes = () => {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
@@ -53,10 +56,15 @@ const AdminRoutes = () => {
         {/* Default admin dashboard */}
         <Route index element={<AdminDashboard />} />
         
-        {/* Other admin routes */}
+        {/* Categories */}
         <Route path="categories" element={<CategoriesPage />} />
         <Route path="add-category" element={<AddCategoryPage />} />
         <Route path="edit-category/:id" element={<EditCategoryPage />} />
+
+        {/* Users */}
+        <Route path="users" element={<UsersPage />} />
+        <Route path="add-user" element={<AddUserPage />} />
+        <Route path="edit-user/:id" element={<EditUserPage />} />
         
         {/* Catch all - redirect to dashboard */}
         <Route path="*" element={<Navigate to="/admin" replace />} />

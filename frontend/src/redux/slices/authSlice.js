@@ -71,6 +71,63 @@ const authSlice = createSlice({
     updateUserProfile: (state, action) => {
       state.user = { ...state.user, ...action.payload };
     },
+
+    // Update user profile (by user)
+    updateUserProfileStart: (state) => {
+      state.isLoading = true;
+      state.error = null;
+    },
+    updateUserProfileSuccess: (state, action) => {
+      state.isLoading = false;
+      const updatedUser = action.payload;
+
+      state.user = { ...state.user, ...updatedUser };
+
+      localStorage.setItem('user', JSON.stringify(state.user));
+
+      state.error = null;
+    },
+
+    updateUserProfileFailure: (state, action) => {
+      state.isLoading = false;
+      state.error = action.payload;
+    },
+
+    // Change email
+    changeEmailStart: (state) => {
+      state.isLoading = true;
+      state.error = null;
+    },
+    changeEmailSuccess: (state) => {
+      state.isLoading = false;
+      state.error = null;
+    },
+    changeEmailFailure: (state, action) => {
+      state.isLoading = false;
+      state.error = action.payload;
+    },
+
+    // Delete own user account
+    deleteUserStart: (state) => {
+      state.isLoading = true;
+      state.error = null;
+    },
+    deleteUserSuccess: (state, action) => {
+      state.isLoading = false;
+      state.user = null;
+      state.token = null;
+      state.isAuthenticated = false;
+      state.role = null;
+      state.error = null;
+
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('role');
+    },
+    deleteUserFailure: (state, action) => {
+      state.isLoading = false;
+      state.error = action.payload;
+    },
   },
 });
 
@@ -83,7 +140,15 @@ export const {
   registerSuccess,
   registerFailure,
   clearError,
-  updateUserProfile,
+  updateUserProfileStart,
+  updateUserProfileSuccess,
+  updateUserProfileFailure,
+  changeEmailStart,
+  changeEmailSuccess,
+  changeEmailFailure,
+  deleteUserStart,
+  deleteUserSuccess,
+  deleteUserFailure,
 } = authSlice.actions;
 
 export default authSlice.reducer;

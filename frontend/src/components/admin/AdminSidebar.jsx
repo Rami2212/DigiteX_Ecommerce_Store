@@ -30,8 +30,7 @@ const AdminSidebar = ({ isOpen, onClose }) => {
       path: '/admin/users',
       children: [
         { title: 'All Users', path: '/admin/users' },
-        { title: 'Add New User', path: '/admin/users/new' },
-        { title: 'User Roles', path: '/admin/users/roles' }
+        { title: 'Add New User', path: '/admin/add-user' },
       ]
     },
     {

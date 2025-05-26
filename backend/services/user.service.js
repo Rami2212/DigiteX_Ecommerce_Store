@@ -26,8 +26,6 @@ const deleteOldImage = (imageUrl) => {
     }
 };
 
-
-
 // Get all users
 exports.getAllUsers = async () => {
     const users = await userRepository.findAllUsers();
@@ -57,8 +55,11 @@ exports.createUser = async (data, file) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const relativePath = file.path.replace(/\\/g, '/');
-    const profileImage = `${process.env.BACKEND_URL}/${relativePath}`;
+    let profileImage = null;
+    if (file) {
+        const relativePath = file.path.replace(/\\/g, '/');
+        profileImage = `${process.env.BACKEND_URL}/${relativePath}`;
+    }
 
     const newUser = await userRepository.createUser({
         firstName,
@@ -79,6 +80,7 @@ exports.createUser = async (data, file) => {
         role: newUser.role
     };
 };
+
 
 // Update user (by admin)
 exports.updateUserByAdmin = async (id, data, file) => {
@@ -117,7 +119,7 @@ exports.updateUserByUser = async (userId, data, file) => {
 
 // Delete user
 exports.deleteUser = async (id) => {
-    const user = await userRepository.updateOwnProfile(id, {});
+    const user = await userRepository.deleteUserById(id, {});
     if (!user) throw new Error('User not found');
 
     if (user.profileImage) deleteOldImage(user.profileImage);

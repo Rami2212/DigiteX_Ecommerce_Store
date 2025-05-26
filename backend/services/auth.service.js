@@ -182,6 +182,23 @@ exports.resendOtp = async (email) => {
     return { message: 'OTP resent successfully' };
 };
 
+// for email change
+exports.sendOtp = async (userId, email) => {
+    const user = await User.findById(userId);
+
+    if (!user) throw new Error('User not found');
+
+    const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString();
+
+    user.otp = generateOtp();
+    user.otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins from now
+    await user.save();
+
+    await sendVerificationEmail(email, user.otp);
+
+    return { message: 'OTP resent successfully' };
+};
+
 exports.generateToken = (user) => {
     return jwt.sign({ id: user._id, role: user.role, firstName: user.firstName, lastName: user.lastName, email: user.email, username: user.username, profileImage: user.profileImage }, process.env.JWT_SECRET, {
         expiresIn: '7d',
