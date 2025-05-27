@@ -11,6 +11,8 @@ const storage = multer.diskStorage({
             folder = 'assets/uploads/profileImages/';
         } else if (file.fieldname === 'productImage') {
             folder = 'assets/uploads/productImages/';
+        } else if (file.fieldname === 'categoryImage') {
+            folder = 'assets/uploads/categoryImages/';
         } else {
             folder = 'assets/uploads/others/';
         }

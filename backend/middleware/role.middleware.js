@@ -1,19 +1,25 @@
-// Middleware: Check if user is admin
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = process.env.JWT_SECRET;
+
+// Middleware: Check if token is valid and user is admin
 const isAdmin = (req, res, next) => {
-    if (req.user?.role === 'admin') {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(" ")[1];
+
+    if (!token) {
+        return res.status(401).json({ message: 'Unauthorized: No token provided' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET); // contains id and role
+        if (decoded.role !== 'admin') {
+            return res.status(403).json({ message: 'Forbidden: Admin access only' });
+        }
+        req.user = decoded; // Optional: attach to request for further use
         next();
-    } else {
-        return res.status(403).json({ message: 'Forbidden: Admin access only' });
+    } catch (err) {
+        return res.status(403).json({ message: 'Forbidden: Invalid or expired token' });
     }
 };
 
-// Middleware: Check if user is a standard user (optional)
-const isUser = (req, res, next) => {
-    if (req.user?.role === 'user') {
-        next();
-    } else {
-        return res.status(403).json({ message: 'Forbidden: User access only' });
-    }
-};
-
-module.exports = { isAdmin, isUser };
+module.exports = { isAdmin };

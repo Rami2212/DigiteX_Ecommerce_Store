@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* React Tel Input Custom Styles */
+
+/* Light mode dropdown */
+.react-tel-input .country-list {
+  background-color: white !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Light mode countries */
+.react-tel-input .country-list .country {
+  background-color: white !important;
+  color: #111827 !important; /* gray-900 */
+}
+
+/* Light mode hover */
+.react-tel-input .country-list .country:hover {
+  background-color: #f3f4f6 !important; /* gray-100 */
+  color: #111827 !important;
+}
+
+/* Light mode selected/highlighted */
+.react-tel-input .country-list .country.highlight {
+  background-color: #e5e7eb !important; /* gray-200 */
+  color: #111827 !important;
+}
+
+/* Dark mode dropdown */
+body.dark .react-tel-input .country-list {
+  background-color: #1f2937 !important; /* gray-800 */
+}
+
+/* Dark mode countries */
+body.dark .react-tel-input .country-list .country {
+  background-color: #1f2937 !important; /* gray-800 */
+  color: #f3f4f6 !important; /* gray-100 */
+}
+
+/* Dark mode hover */
+body.dark .react-tel-input .country-list .country:hover {
+  background-color: #374151 !important; /* gray-700 */
+  color: #f9fafb !important; /* gray-50 */
+}
+
+/* Dark mode selected/highlighted */
+body.dark .react-tel-input .country-list .country.highlight {
+  background-color: #4b5563 !important; /* gray-600 */
+  color: #f3f4f6 !important; /* gray-100 */
+}
+
+/* Search input styling */
+.react-tel-input .search-box input {
+  background-color: white !important;
+  color: #111827 !important;
+}
+
+body.dark .react-tel-input .search-box input {
+  background-color: #374151 !important; /* gray-700 */
+  color: #f3f4f6 !important;
+}
+
+/* Selected flag styling */
+.react-tel-input .selected-flag {
+  background-color: #11182700 !important;
+}
+
+body.dark .react-tel-input .selected-flag {
+  background-color: #1f2937 !important; /* gray-800 */
+}
+
+@layer base {
+  body {
+    @apply font-sans text-gray-900 bg-white;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold text-primary;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-md font-medium transition-colors duration-200;
+  }
+  
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-dark;
+  }
+  
+  .btn-accent {
+    @apply bg-accent text-white hover:bg-accent-dark;
+  }
+  
+  .btn-outline {
+    @apply border border-primary text-primary hover:bg-primary hover:text-white;
+  }
+  
+  .input {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-md p-4;
+  }
+}

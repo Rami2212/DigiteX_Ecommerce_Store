@@ -1,8 +1,7 @@
-// services/auth.service.js
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
-const { sendVerificationEmail, sendResetPasswordEmail, resendVerificationEmail } = require("../utils/sendEmail");
+const { sendVerificationEmail, sendResetPasswordEmail, sendResetPasswordEmailLoggedIn, resendVerificationEmail } = require("../utils/sendEmail");
 const crypto = require('crypto');
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -42,6 +41,7 @@ exports.registerUser = async (data) => {
 };
 
 exports.loginUser = async (identifier, password) => {
+
     const user = await User.findOne({
         $or: [{ email: identifier }, { username: identifier }],
     });
@@ -69,6 +69,47 @@ exports.loginUser = async (identifier, password) => {
             email: user.email,
             phone: user.phone || '',
             role: user.role,
+            isVerified: user.isVerified,
+            profileImage: user.profileImage || '',
+        },
+    };
+};
+
+exports.loginAdmin = async (identifier, password) => {
+    // Find the user by email or username
+    const user = await User.findOne({
+        $or: [{ email: identifier }, { username: identifier }],
+    });
+
+    // If user is not found, throw an error
+    if (!user) throw new Error('Invalid credentials');
+
+    // Check if the provided password matches the stored hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) throw new Error('Invalid credentials');
+
+    // Check if the user is an admin
+    if (user.role !== 'admin') throw new Error('Access denied. Admins only.');
+
+    // Generate a JWT token for the admin
+    const token = jwt.sign(
+        { id: user._id, role: user.role },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+    );
+
+    // Return the token and user details
+    return {
+        token,
+        user: {
+            id: user._id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            username: user.username,
+            email: user.email,
+            phone: user.phone || '',
+            role: user.role,
+            isVerified: user.isVerified,
             profileImage: user.profileImage || '',
         },
     };
@@ -101,8 +142,26 @@ exports.forgotPassword = async (email) => {
     user.resetPasswordExpire = expiry;
     await user.save();
 
-    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+    const resetUrl = `${process.env.CLIENT_URL}/auth/reset-password/${resetToken}`;
     await sendResetPasswordEmail(email, resetUrl);
+
+    return { message: 'Reset link sent to email', resetToken };
+};
+
+exports.forgotPasswordLoggedIn = async (email) => {
+    const user = await User.findOne({ email });
+    if (!user) throw new Error('No user found with that email');
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    const expiry = Date.now() + 10 * 60 * 1000; // 10 mins
+
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpire = expiry;
+    await user.save();
+
+    const resetUrl = `${process.env.CLIENT_URL}/user/reset-password/${resetToken}`;
+    await sendResetPasswordEmailLoggedIn(email, resetUrl);
 
     return { message: 'Reset link sent to email', resetToken };
 };
@@ -141,27 +200,25 @@ exports.resendOtp = async (email) => {
     return { message: 'OTP resent successfully' };
 };
 
-exports.createOrFindSocialUser = async (profile, provider) => {
-    const email = profile.emails?.[0]?.value;
-    if (!email) throw new Error('Email not found from provider');
+// for email change
+exports.sendOtp = async (userId, email) => {
+    const user = await User.findById(userId);
 
-    let user = await User.findOne({ email });
-    if (!user) {
-        user = await User.create({
-            firstName: profile.name.givenName,
-            lastName: profile.name.familyName,
-            username: email.split('@')[0],
-            email,
-            isVerified: true,
-            profileImage: profile.photos?.[0]?.value || '',
-            provider,
-        });
-    }
-    return user;
+    if (!user) throw new Error('User not found');
+
+    const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString();
+
+    user.otp = generateOtp();
+    user.otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins from now
+    await user.save();
+
+    await sendVerificationEmail(email, user.otp);
+
+    return { message: 'OTP resent successfully' };
 };
 
 exports.generateToken = (user) => {
-    return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
+    return jwt.sign({ id: user._id, role: user.role, firstName: user.firstName, lastName: user.lastName, email: user.email, username: user.username, profileImage: user.profileImage }, process.env.JWT_SECRET, {
         expiresIn: '7d',
     });
 };
