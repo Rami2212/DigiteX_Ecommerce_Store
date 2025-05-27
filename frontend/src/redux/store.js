@@ -3,6 +3,7 @@ import authReducer from './slices/authSlice';
 import themeReducer from './slices/themeSlice';
 import categoryReducer from './slices/categorySlice';
 import useReducer from './slices/userSlice';
+import addonSlice from './slices/addonSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     theme: themeReducer,
     category: categoryReducer,
     user: useReducer,
+    addon: addonSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

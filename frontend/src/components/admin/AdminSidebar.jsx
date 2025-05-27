@@ -13,6 +13,7 @@ import {
   FiChevronRight,
   FiX
 } from 'react-icons/fi';
+import { BiCube } from 'react-icons/bi';
 
 const AdminSidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
@@ -43,12 +44,12 @@ const AdminSidebar = ({ isOpen, onClose }) => {
       ]
     },
     {
-      title: 'Media',
-      icon: FiImage,
-      path: '/admin/media',
+      title: 'Addons',
+      icon: BiCube,
+      path: '/admin/addons',
       children: [
-        { title: 'Library', path: '/admin/media' },
-        { title: 'Add New', path: '/admin/media/upload' }
+        { title: 'Addons', path: '/admin/addons' },
+        { title: 'Add New Addon', path: '/admin/add-addon' }
       ]
     },
     {
@@ -221,7 +222,7 @@ const AdminSidebar = ({ isOpen, onClose }) => {
                         className={({ isActive }) => `
                           block px-3 py-2 rounded-md text-sm transition-colors
                           ${isActive
-                            ? 'bg-blue-500 text-white'
+                            ? 'bg-slate-800 text-white'
                             : 'text-slate-400 hover:bg-slate-800 hover:text-white'
                           }
                         `}

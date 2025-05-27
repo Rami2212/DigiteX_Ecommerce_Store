@@ -12,6 +12,9 @@ import EditCategoryPage from '../pages/admin/categories/EditCategory';
 import UsersPage from '../pages/admin/users/Users';
 import AddUserPage from '../pages/admin/users/AddUser';
 import EditUserPage from '../pages/admin/users/EditUser';
+import AddonsPage from '../pages/admin/addons/Addons';
+import AddAddonPage from '../pages/admin/addons/AddAddon';
+import EditAddonPage from '../pages/admin/addons/EditAddon';
 
 const AdminRoutes = () => {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
@@ -66,6 +69,11 @@ const AdminRoutes = () => {
         <Route path="add-user" element={<AddUserPage />} />
         <Route path="edit-user/:id" element={<EditUserPage />} />
         
+        {/* Adons */}
+        <Route path="addons" element={<AddonsPage />} />
+        <Route path="add-addon" element={<AddAddonPage />} />
+        <Route path="edit-addon/:id" element={<EditAddonPage />} />
+
         {/* Catch all - redirect to dashboard */}
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Route>

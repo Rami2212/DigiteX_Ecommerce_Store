@@ -3,11 +3,13 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import AdminHeader from '../components/admin/AdminHeader';
 import AdminSidebar from '../components/admin/AdminSidebar';
 import { useAuth } from '../hooks/useAuth';
+import { useTheme } from '../hooks/useTheme';
 
 const AdminLayout = () => {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme, toggle } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
@@ -30,7 +32,13 @@ const AdminLayout = () => {
     if (location.pathname === '/admin/login') {
       navigate('/admin', { replace: true });
     }
-  }, [isAuthenticated, isAdmin, isLoading, navigate, location.pathname]);
+
+    // set theme for light
+    if (theme === 'dark') {
+      toggle();
+    }
+
+  }, [isAuthenticated, isAdmin, isLoading, navigate, location.pathname, theme, toggle]);
 
   // Handle sidebar toggle
   const handleToggleSidebar = () => {
