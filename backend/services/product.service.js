@@ -1,5 +1,27 @@
 const productRepo = require('../repositories/product.repository');
+const path = require("path");
+const fs = require("fs");
 require('dotenv').config();
+
+const deleteOldImage = (imageUrl) => {
+    if (!imageUrl) return;
+
+    try {
+        const baseUrl = process.env.BACKEND_URL;
+        const relativePath = imageUrl.replace(baseUrl, '');
+
+        const filePath = path.join(__dirname, '../', relativePath);
+
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+            console.log('Deleted image:', filePath);
+        } else {
+            console.log('File not found:', filePath);
+        }
+    } catch (err) {
+        console.error('Error deleting image:', err);
+    }
+};
 
 exports.addProduct = async (data, files) => {
     const existing = await productRepo.getAllProducts();
@@ -75,43 +97,101 @@ exports.getProductById = async (id) => {
     return product;
 };
 
+exports.getProductsByCategory = async (categoryId) => {
+    const products = await productRepo.getProductsByCategory(categoryId);
+    if (products.length === 0) {
+        throw new Error('No products found for this category');
+    }
+    return products;
+};
+
 exports.updateProduct = async (id, data, files) => {
     const existing = await productRepo.getProductById(id);
     if (!existing) {
         throw new Error('Product not found');
     }
 
+    // Check for name uniqueness (excluding current product)
+    if (data.name) {
+        const allProducts = await productRepo.getAllProducts();
+        const nameExists = allProducts.some(p =>
+            p._id.toString() !== id &&
+            p.name.toLowerCase() === data.name.toLowerCase()
+        );
+        if (nameExists) {
+            throw new Error('Product name already exists');
+        }
+    }
+
     // Update main product image if present
     if (files?.productImage?.[0]) {
+        // Delete old image
+        if (existing.productImage) deleteOldImage(existing.productImage);
         const relativePath = files.productImage[0].path.replace(/\\/g, '/');
         data.productImage = `${process.env.BACKEND_URL}/${relativePath}`;
     }
 
     // Update additional product images if present
     if (files?.productImages) {
+        // Delete old images
+        if (existing.productImages && Array.isArray(existing.productImages)) {
+            existing.productImages.forEach(image => deleteOldImage(image));
+        }
         data.productImages = files.productImages.map(file => {
             const relativePath = file.path.replace(/\\/g, '/');
             return `${process.env.BACKEND_URL}/${relativePath}`;
         });
     }
 
-    // Parse variants if JSON string
-    if (data.variants && typeof data.variants === 'string') {
-        data.variants = JSON.parse(data.variants);
-    }
+    // Handle variants update
+    if (data.variants !== undefined) {
+        // Parse variants if JSON string
+        if (typeof data.variants === 'string') {
+            try {
+                data.variants = JSON.parse(data.variants);
+            } catch (e) {
+                throw new Error('Invalid variants JSON format');
+            }
+        }
 
-    // Update variant images
-    if (files?.variantImages) {
-        const variantImages = files.variantImages.map(file => {
-            const relativePath = file.path.replace(/\\/g, '/');
-            return `${process.env.BACKEND_URL}/${relativePath}`;
-        });
+        // Ensure variants is an array
+        if (data.variants && !Array.isArray(data.variants)) {
+            data.variants = [data.variants];
+        }
 
-        if (Array.isArray(data.variants)) {
+        // Delete old variant images if variants are being replaced
+        if (existing.variants && Array.isArray(existing.variants)) {
+            existing.variants.forEach(variant => {
+                if (variant.variantImage) deleteOldImage(variant.variantImage);
+            });
+        }
+
+        // Handle new variant images
+        if (files?.variantImages && data.variants) {
+            const variantImages = files.variantImages.map(file => {
+                const relativePath = file.path.replace(/\\/g, '/');
+                return `${process.env.BACKEND_URL}/${relativePath}`;
+            });
+
             data.variants = data.variants.map((variant, index) => ({
                 ...variant,
-                variantImage: variantImages[index] || '',
+                variantImage: variantImages[index] || variant.variantImage || variant.image || '',
             }));
+        }
+
+        // Validate and normalize variants
+        if (data.variants && data.variants.length > 0) {
+            data.variants = data.variants.map(variant => {
+                if (!variant.color) {
+                    throw new Error('Variant color is required');
+                }
+                return {
+                    color: variant.color,
+                    variantImage: variant.variantImage || variant.image || '',
+                };
+            });
+        } else {
+            data.variants = [];
         }
     }
 
@@ -122,6 +202,17 @@ exports.deleteProduct = async (id) => {
     const existing = await productRepo.getProductById(id);
     if (!existing) {
         throw new Error('Product not found');
+    }
+
+    // delete all images associated with the product
+    if (existing.productImage) deleteOldImage(existing.productImage);
+    if (existing.productImages && Array.isArray(existing.productImages)) {
+        existing.productImages.forEach(image => deleteOldImage(image));
+    }
+    if (existing.variants && Array.isArray(existing.variants)) {
+        existing.variants.forEach(variant => {
+            if (variant.variantImage) deleteOldImage(variant.variantImage);
+        });
     }
 
     return await productRepo.deleteProductById(id);

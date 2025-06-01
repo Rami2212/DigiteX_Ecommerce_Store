@@ -4,8 +4,6 @@ const path = require('path');
 const { sendVerificationEmail } = require('../utils/sendEmail');
 const userRepository = require('../repositories/user.repository');
 
-
-
 const deleteOldImage = (imageUrl) => {
     if (!imageUrl) return;
 
@@ -37,7 +35,7 @@ exports.getAllUsers = async () => {
 
 // Get user by ID
 exports.getUserById = async (id) => {
-    const user = await userRepository.updateOwnProfile(id, {}); // findById equivalent
+    const user = await userRepository.updateOwnProfile(id, {});
     if (!user) throw new Error('User not found');
     const { password, otp, otpExpires, resetPasswordToken, resetPasswordExpire, ...safeUser } = user.toObject();
     return safeUser;

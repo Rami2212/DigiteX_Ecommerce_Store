@@ -6,6 +6,8 @@ exports.getAllProducts = async () => await Product.find();
 
 exports.getProductById = async (id) => await Product.findById(id);
 
+exports.getProductsByCategory = async (categoryId) => await Product.find({ category: categoryId });
+
 exports.updateProductById = async (id, data) =>
     await Product.findByIdAndUpdate(id, data, { new: true });
 

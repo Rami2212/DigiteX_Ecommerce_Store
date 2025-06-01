@@ -41,6 +41,19 @@ exports.getProductById = async (req, res) => {
     }
 };
 
+exports.getProductsByCategory = async (req, res) => {
+    try {
+        const products = await productService.getProductsByCategory(req.params.categoryId);
+        if (products.length === 0) {
+            return res.status(404).json({ message: 'No products found for this category' });
+        }
+        return res.status(200).json(products);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: err.message || 'Internal Server Error' });
+    }
+}
+
 exports.updateProduct = async (req, res) => {
     try {
         const { error } = updateProductDto.validate(req.body);

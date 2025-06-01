@@ -18,6 +18,9 @@ router.get('/', productController.getProducts);
 // GET product by ID
 router.get('/:id', productController.getProductById);
 
+// GET products by category
+router.get('/category/:categoryId', productController.getProductsByCategory);
+
 // CREATE product (admin only)
 router.post(
     '/',

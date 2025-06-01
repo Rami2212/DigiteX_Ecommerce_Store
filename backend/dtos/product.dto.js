@@ -25,7 +25,8 @@ exports.addProductDto = Joi.object({
         Joi.array().items(variantSchema),
         Joi.string(), // Allow JSON string
         Joi.object().pattern(Joi.string(), Joi.any()) // Allow parsed object
-    ).default([])
+    ).default([]),
+    category: Joi.string().required()
 });
 
 exports.updateProductDto = Joi.object({
@@ -48,5 +49,6 @@ exports.updateProductDto = Joi.object({
         Joi.array().items(variantSchema),
         Joi.string(),
         Joi.object().pattern(Joi.string(), Joi.any())
-    ).optional()
+    ).optional(),
+    category: Joi.string().optional()
 });
