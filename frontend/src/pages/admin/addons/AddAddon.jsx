@@ -144,7 +144,7 @@ const AddAddonPage = () => {
           <div>
             <Input
               name="price"
-              label="Price ($)"
+              label="Price (Rs.)"
               type="number"
               step="0.01"
               min="0"

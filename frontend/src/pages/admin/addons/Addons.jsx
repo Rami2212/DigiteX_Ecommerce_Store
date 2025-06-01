@@ -84,7 +84,7 @@ const AddonsPage = () => {
           </div>
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          ${addon.price}
+          Rs.{addon.price}
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
           {new Date(addon.createdAt).toLocaleDateString()}
