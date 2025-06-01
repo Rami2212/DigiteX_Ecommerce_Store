@@ -14,6 +14,8 @@ import ForgotPassword from '../pages/auth/ForgotPassword';
 import ResetPassword from '../pages/auth/ResetPassword';
 import AuthSuccess from '../pages/auth/AuthSuccess';
 import AuthFailed from '../pages/auth/AuthFailed';
+import CategoriesPage from '../pages/public/Categories';
+import CategoryProductsPage from '../pages/public/CategoryProduct';
 
 // Placeholder pages
 const HomePage = () => <div>Home Page</div>;
@@ -39,6 +41,8 @@ const PublicRoutes = () => {
         {/* Public Routes */}
         <Route path="/" element={<MainLayout />}>
           <Route index element={<HomePage />} />
+          <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/category/:categorySlug" element={<CategoryProductsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
