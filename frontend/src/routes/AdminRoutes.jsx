@@ -15,6 +15,9 @@ import EditUserPage from '../pages/admin/users/EditUser';
 import AddonsPage from '../pages/admin/addons/Addons';
 import AddAddonPage from '../pages/admin/addons/AddAddon';
 import EditAddonPage from '../pages/admin/addons/EditAddon';
+import AddProductPage from '../pages/admin/products/AddProduct';
+import EditProductPage from '../pages/admin/products/EditProduct';
+import ProductsPage from '../pages/admin/products/Products';
 
 const AdminRoutes = () => {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
@@ -73,6 +76,11 @@ const AdminRoutes = () => {
         <Route path="addons" element={<AddonsPage />} />
         <Route path="add-addon" element={<AddAddonPage />} />
         <Route path="edit-addon/:id" element={<EditAddonPage />} />
+
+        {/* Products */}
+        <Route path="products" element={<ProductsPage />} />
+        <Route path="add-product" element={<AddProductPage />} />
+        <Route path="edit-product/:id" element={<EditProductPage />} />
 
         {/* Catch all - redirect to dashboard */}
         <Route path="*" element={<Navigate to="/admin" replace />} />

@@ -4,6 +4,7 @@ import themeReducer from './slices/themeSlice';
 import categoryReducer from './slices/categorySlice';
 import useReducer from './slices/userSlice';
 import addonSlice from './slices/addonSlice';
+import productSlice from './slices/productSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     category: categoryReducer,
     user: useReducer,
     addon: addonSlice,
+    product: productSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

@@ -57,10 +57,8 @@ const AdminSidebar = ({ isOpen, onClose }) => {
       icon: FiPackage,
       path: '/admin/products',
       children: [
-        { title: 'All Products', path: '/admin/products' },
-        { title: 'Add Product', path: '/admin/products/new' },
-        { title: 'Categories', path: '/admin/products/categories' },
-        { title: 'Orders', path: '/admin/products/orders' }
+        { title: 'Products', path: '/admin/products' },
+        { title: 'Add Product', path: '/admin/add-product' },
       ]
     },
     {
