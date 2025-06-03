@@ -16,6 +16,7 @@ import AuthSuccess from '../pages/auth/AuthSuccess';
 import AuthFailed from '../pages/auth/AuthFailed';
 import CategoriesPage from '../pages/public/Categories';
 import CategoryProductsPage from '../pages/public/CategoryProduct';
+import CartPage from '../pages/public/Cart';
 
 // Placeholder pages
 const HomePage = () => <div>Home Page</div>;
@@ -43,6 +44,7 @@ const PublicRoutes = () => {
           <Route index element={<HomePage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/category/:categorySlug" element={<CategoryProductsPage />} />
+          <Route path="/cart" element={<CartPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
