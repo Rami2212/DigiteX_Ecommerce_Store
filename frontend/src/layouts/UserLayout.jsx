@@ -73,7 +73,7 @@ const UserLayout = () => {
           </div>
 
           {/* Sidebar - 1/5 width on desktop, mobile overlay */}
-          <div className="hidden lg:block w-1/5 pr-6">
+          <div className="hidden lg:block w-1/5 pr-6 mt-8">
             <UserSidebar isOpen={true} onClose={handleCloseSidebar} />
           </div>
 

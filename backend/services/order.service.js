@@ -1,9 +1,10 @@
 const orderRepo = require('../repositories/order.repository');
 const cartService = require('./cart.service');
 const productRepo = require('../repositories/product.repository');
+const paymentService = require('./payment.service');
 
 exports.createOrder = async (userId, orderData) => {
-    const { items, shippingAddress, paymentMethod, totalAmount } = orderData;
+    const { items, shippingAddress, paymentMethod, totalAmount, shippingMethod } = orderData;
 
     // Validate items and calculate total
     let calculatedTotal = 0;
@@ -48,14 +49,35 @@ exports.createOrder = async (userId, orderData) => {
         items: validatedItems,
         shippingAddress,
         paymentMethod,
+        shippingMethod: shippingMethod || 'standard',
         totalAmount: calculatedTotal,
-        paymentStatus: paymentMethod === 'COD' ? 'Pending' : 'Pending',
+        paymentStatus: 'Pending',
+        status: paymentMethod === 'stripe' ? 'Pending' : 'Processing',
     });
 
-    return order;
+    // Handle payment for stripe orders
+    if (paymentMethod === 'stripe') {
+        try {
+            const paymentResult = await paymentService.createPaymentIntent(order._id, userId);
+            return {
+                order,
+                ...paymentResult
+            };
+        } catch (error) {
+            // If payment intent creation fails, mark order as failed
+            await orderRepo.updateOrderById(order._id, {
+                status: 'Failed',
+                paymentStatus: 'Failed'
+            });
+            throw error;
+        }
+    }
+
+    return { order };
 };
 
 exports.createOrderFromCart = async (userId, shippingAddress, paymentMethod) => {
+
     // Get user's cart
     const cart = await cartService.getCart(userId);
     if (!cart || cart.items.length === 0) {
@@ -78,15 +100,63 @@ exports.createOrderFromCart = async (userId, shippingAddress, paymentMethod) => 
         shippingAddress,
         paymentMethod,
         totalAmount: cart.totalAmount,
-        paymentStatus: paymentMethod === 'COD' ? 'Pending' : 'Pending',
+        paymentStatus: 'Pending',
+        status: paymentMethod === 'stripe' ? 'Pending' : 'Processing',
     });
 
-    // Clear cart after successful order creation
+    // Handle payment for stripe orders
+    if (paymentMethod === 'stripe') {
+        try {
+            const paymentResult = await paymentService.createPaymentIntent(order._id, userId);
+            return {
+                order,
+                ...paymentResult
+            };
+        } catch (error) {
+            // If payment intent creation fails, mark order as failed
+            await orderRepo.updateOrderById(order._id, {
+                status: 'Failed',
+                paymentStatus: 'Failed'
+            });
+            throw error;
+        }
+    }
+
+    // Clear cart for non-stripe payments immediately
     await cartService.clearCart(userId);
 
-    return order;
+    return { order };
 };
 
+exports.cancelOrder = async (orderId, userId = null) => {
+    const order = await orderRepo.getOrderById(orderId);
+    if (!order) {
+        throw new Error('Order not found');
+    }
+
+    // If userId is provided, verify order belongs to user
+    if (userId && order.user._id.toString() !== userId) {
+        throw new Error('Unauthorized to cancel this order');
+    }
+
+    // Check if order can be cancelled
+    if (['Shipped', 'Delivered'].includes(order.status)) {
+        throw new Error('Cannot cancel order that has been shipped or delivered');
+    }
+
+    // Cancel payment if it's a stripe order
+    if (order.paymentMethod === 'stripe' && order.paymentIntentId) {
+        try {
+            await paymentService.cancelPayment(orderId, order.user._id);
+        } catch (error) {
+            console.log('Error cancelling payment:', error.message);
+        }
+    }
+
+    return await orderRepo.updateOrderById(orderId, { status: 'Cancelled' });
+};
+
+// Keep all your existing methods...
 exports.getAllOrders = async (page = 1, limit = 10, status = null) => {
     return await orderRepo.getAllOrders(page, limit, status);
 };
@@ -139,25 +209,6 @@ exports.updateDeliveryStatus = async (orderId, isDelivered) => {
         throw new Error('Order not found');
     }
     return order;
-};
-
-exports.cancelOrder = async (orderId, userId = null) => {
-    const order = await orderRepo.getOrderById(orderId);
-    if (!order) {
-        throw new Error('Order not found');
-    }
-
-    // If userId is provided, verify order belongs to user
-    if (userId && order.user._id.toString() !== userId) {
-        throw new Error('Unauthorized to cancel this order');
-    }
-
-    // Check if order can be cancelled
-    if (['Shipped', 'Delivered'].includes(order.status)) {
-        throw new Error('Cannot cancel order that has been shipped or delivered');
-    }
-
-    return await orderRepo.updateOrderById(orderId, { status: 'Cancelled' });
 };
 
 exports.deleteOrder = async (orderId) => {

@@ -11,7 +11,8 @@ import {
   FiPackage,
   FiChevronDown,
   FiChevronRight,
-  FiX
+  FiX,
+  FiShoppingBag
 } from 'react-icons/fi';
 import { BiCube } from 'react-icons/bi';
 
@@ -62,6 +63,14 @@ const AdminSidebar = ({ isOpen, onClose }) => {
       ]
     },
     {
+      title: 'Orders',
+      icon: FiShoppingBag,
+      path: '/admin/orders',
+      children: [
+        { title: 'Orders', path: '/admin/orders' },
+      ]
+    },
+    {
       title: 'Analytics',
       icon: FiSettings,
       path: '/admin/analytics',
@@ -70,11 +79,6 @@ const AdminSidebar = ({ isOpen, onClose }) => {
         { title: 'Reports', path: '/admin/analytics/reports' },
         { title: 'Traffic', path: '/admin/analytics/traffic' }
       ]
-    },
-    {
-      title: 'Messages',
-      icon: FiMail,
-      path: '/admin/messages'
     },
     {
       title: 'Security',

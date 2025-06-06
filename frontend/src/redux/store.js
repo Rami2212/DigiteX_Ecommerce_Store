@@ -7,6 +7,7 @@ import addonSlice from './slices/addonSlice';
 import productSlice from './slices/productSlice';
 import cartSlice from './slices/cartSlice';
 import orderSlice from './slices/orderSlice';
+import paymentSlice from './slices/paymentSlice';
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     product: productSlice,
     cart: cartSlice,
     order: orderSlice,
+    payment: paymentSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

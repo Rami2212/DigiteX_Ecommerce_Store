@@ -18,6 +18,10 @@ import CategoriesPage from '../pages/public/Categories';
 import CategoryProductsPage from '../pages/public/CategoryProduct';
 import CartPage from '../pages/public/Cart';
 import CheckoutPage from '../pages/public/Checkout';
+import OrderSuccessPage from '../pages/public/payment/OrderSuccess';
+import PaymentFailedPage from '../pages/public/payment/PaymentFailed';
+import RetryPaymentPage from '../pages/public/payment/RetryPayment';
+import OrderPendingPage from '../pages/public/payment/OrderPending';
 
 // Placeholder pages
 const HomePage = () => <div>Home Page</div>;
@@ -47,6 +51,10 @@ const PublicRoutes = () => {
           <Route path="/category/:categorySlug" element={<CategoryProductsPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
+          <Route path="/payment-failed/:orderId" element={<PaymentFailedPage />} />
+          <Route path="/order-pending/:orderId" element={<OrderPendingPage />} />
+          <Route path="/retry-payment/:orderId" element={<RetryPaymentPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

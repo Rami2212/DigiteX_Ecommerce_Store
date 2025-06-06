@@ -11,6 +11,8 @@ import EditProfile from '../pages/user/profile/EditProfile';
 import PasswordReset from '../pages/user/profile/ResetPassword';
 import VerifyEmail from '../pages/user/profile/VerifyEmail';
 import ChangeEmail from '../pages/user/profile/ChangeEmail';
+import MyOrders from '../pages/user/orders/MyOrders';
+import Order from '../pages/user/orders/Order';
 
 // User pages
 // Import your user pages here
@@ -35,6 +37,10 @@ const UserRoutes = () => {
           <Route path="/change-email" element={<ChangeEmail />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/reset-password/:token" element={<PasswordReset />} />
+
+          {/* Orders */}
+          <Route path="/my-orders" element={<MyOrders />} />
+          <Route path="/order/:orderId" element={<Order />} />
 
           {/* Example:
           <Route path="/settings" element={<UserSettings />} />
