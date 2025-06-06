@@ -17,7 +17,8 @@ exports.addProduct = async (req, res) => {
 
 exports.getProducts = async (req, res) => {
     try {
-        const products = await productService.getProducts();
+        const { page = 1, limit = 10 } = req.query;
+        const products = await productService.getProducts(parseInt(page), parseInt(limit));
         if (products.length === 0) {
             return res.status(200).json({ message: 'No products found', products: [] });
         }
@@ -43,7 +44,8 @@ exports.getProductById = async (req, res) => {
 
 exports.getProductsByCategory = async (req, res) => {
     try {
-        const products = await productService.getProductsByCategory(req.params.categoryId);
+        const { page = 1, limit = 10 } = req.query;
+        const products = await productService.getProductsByCategory(req.params.categoryId, parseInt(page), parseInt(limit));
         if (products.length === 0) {
             return res.status(404).json({ message: 'No products found for this category' });
         }

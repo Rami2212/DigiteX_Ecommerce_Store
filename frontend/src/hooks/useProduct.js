@@ -24,6 +24,7 @@ import {
   clearProductsByCategory,
   clearProductError,
   clearProductLoading,
+  clearProducts,
 } from '../redux/slices/productSlice';
 import { productAPI } from '../lib/api/product';
 
@@ -34,13 +35,19 @@ export const useProduct = () => {
     selectedProduct, 
     productsByCategory, 
     isLoading, 
-    error 
+    error,
+    totalPages,
+    currentPage,
+    totalProducts,
+    categoryTotalPages,
+    categoryCurrentPage,
+    categoryTotalProducts,
   } = useSelector((state) => state.product);
 
-  const getProducts = async () => {
+  const getProducts = async (page = 1, limit = 20) => {
     try {
       dispatch(fetchProductsStart());
-      const data = await productAPI.getProducts();
+      const data = await productAPI.getProducts(page, limit);
       dispatch(fetchProductsSuccess(data));
     } catch (err) {
       const errorMsg = err.response?.data?.message || 'Failed to fetch products';
@@ -63,10 +70,10 @@ export const useProduct = () => {
     }
   };
 
-  const getProductsByCategory = async (categoryId) => {
+  const getProductsByCategory = async (categoryId, page = 1, limit = 20) => {
     try {
       dispatch(fetchProductsByCategoryStart());
-      const data = await productAPI.getProductsByCategory(categoryId);
+      const data = await productAPI.getProductsByCategory(categoryId, page, limit);
       dispatch(fetchProductsByCategorySuccess(data));
       return data;
     } catch (err) {
@@ -78,8 +85,21 @@ export const useProduct = () => {
   };
 
   const findProductById = useCallback((id) => {
-    return products.find((product) => product._id === id || product._id === parseInt(id)) || null;
-  }, [products]);
+    // Check in main products first
+    let product = products.find((product) => product._id === id || product._id === parseInt(id));
+    if (product) return product;
+    
+    // Check in category products
+    product = productsByCategory.find((product) => product._id === id || product._id === parseInt(id));
+    if (product) return product;
+    
+    // Check selected product
+    if (selectedProduct && (selectedProduct._id === id || selectedProduct._id === parseInt(id))) {
+      return selectedProduct;
+    }
+    
+    return null;
+  }, [products, productsByCategory, selectedProduct]);
 
   const addProduct = async (formData) => {
     try {
@@ -141,6 +161,10 @@ export const useProduct = () => {
     dispatch(clearProductsByCategory());
   };
 
+  const clearAllProducts = () => {
+    dispatch(clearProducts());
+  };
+
   return {
     // State
     products,
@@ -148,6 +172,12 @@ export const useProduct = () => {
     productsByCategory,
     isLoading,
     error,
+    totalPages,
+    currentPage,
+    totalProducts,
+    categoryTotalPages,
+    categoryCurrentPage,
+    categoryTotalProducts,
     
     // Actions
     getProducts,
@@ -163,5 +193,6 @@ export const useProduct = () => {
     clearLoading,
     clearSelected,
     clearCategoryProducts,
+    clearAllProducts,
   };
 };

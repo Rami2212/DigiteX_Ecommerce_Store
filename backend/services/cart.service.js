@@ -45,8 +45,7 @@ exports.addToCart = async (userId, data) => {
     if (existingItemIndex > -1) {
         // Update existing item
         cart.items[existingItemIndex].quantity += quantity;
-        cart.items[existingItemIndex].totalPrice =
-            cart.items[existingItemIndex].quantity * itemPrice;
+        cart.items[existingItemIndex].totalPrice = cart.items[existingItemIndex].quantity * itemPrice;
     } else {
         // Add new item
         const newItem = {

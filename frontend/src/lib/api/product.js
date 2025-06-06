@@ -10,8 +10,8 @@ export const productAPI = {
     return response.data;
   },
 
-  getProducts: async () => {
-    const response = await api.get('/products');
+  getProducts: async (page = 1, limit = 20) => {
+    const response = await api.get(`/products?page=${page}&limit=${limit}`);
     return response.data;
   },
 
@@ -20,8 +20,8 @@ export const productAPI = {
     return response.data;
   },
 
-  getProductsByCategory: async (category) => {
-    const response = await api.get(`/products/category/${category}`);
+  getProductsByCategory: async (category, page = 1, limit = 20) => {
+    const response = await api.get(`/products/category/${category}?page=${page}&limit=${limit}`);
     return response.data;
   },
 

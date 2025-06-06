@@ -85,8 +85,8 @@ exports.addProduct = async (data, files) => {
     return await productRepo.createProduct(data);
 };
 
-exports.getProducts = async () => {
-    return await productRepo.getAllProducts();
+exports.getProducts = async (page = 1, limit = 10) => {
+    return await productRepo.getAllProducts(page, limit);
 };
 
 exports.getProductById = async (id) => {
@@ -97,8 +97,8 @@ exports.getProductById = async (id) => {
     return product;
 };
 
-exports.getProductsByCategory = async (categoryId) => {
-    const products = await productRepo.getProductsByCategory(categoryId);
+exports.getProductsByCategory = async (categoryId, page = 1, limit = 10) => {
+    const products = await productRepo.getProductsByCategory(categoryId, page = 1, limit = 10);
     if (products.length === 0) {
         throw new Error('No products found for this category');
     }

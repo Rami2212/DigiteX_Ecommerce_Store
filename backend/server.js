@@ -14,6 +14,7 @@ const userRoutes = require('./routes/user.routes');
 const addonRoutes = require('./routes/addon.routes');
 const productRoutes = require('./routes/product.routes');
 const cartRoutes = require('./routes/cart.routes');
+const orderRoutes = require('./routes/order.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -46,6 +47,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/addons', addonRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes);
 
 // Start server
 app.listen(PORT, () => {

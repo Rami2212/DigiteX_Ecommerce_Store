@@ -28,10 +28,17 @@ const CategoryProductsPage = () => {
   const [selectedRating, setSelectedRating] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [inStockOnly, setInStockOnly] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage] = useState(12);
   
-  const { productsByCategory, isLoading, getProductsByCategory, error } = useProduct();
+  const { 
+    productsByCategory, 
+    isLoading, 
+    getProductsByCategory, 
+    error,
+    categoryTotalPages,
+    categoryCurrentPage,
+    categoryTotalProducts
+  } = useProduct();
   const { categories, getCategories } = useCategory();
 
   // Find current category
@@ -45,9 +52,10 @@ const CategoryProductsPage = () => {
 
   useEffect(() => {
     if (currentCategory) {
-      getProductsByCategory(currentCategory._id);
+      // Reset to page 1 and fetch products
+      getProductsByCategory(currentCategory._id, 1, productsPerPage);
     }
-  }, [currentCategory]);
+  }, [currentCategory, productsPerPage]);
 
   useEffect(() => {
     if (productsByCategory && productsByCategory.length > 0) {
@@ -127,7 +135,6 @@ const CategoryProductsPage = () => {
       });
 
       setFilteredProducts(filtered);
-      setCurrentPage(1); // Reset to first page when filters change
     } else {
       setFilteredProducts([]);
     }
@@ -149,15 +156,16 @@ const CategoryProductsPage = () => {
       }, { min: Infinity, max: 0 })
     : { min: 0, max: 1000 };
 
-  // Pagination
-  const indexOfLastProduct = currentPage * productsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
-  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
-
   const handleSearch = () => {
     // Search is handled by useEffect
     console.log('Searching for:', searchQuery);
+  };
+
+  const handlePageChange = (pageNumber) => {
+    if (currentCategory) {
+      getProductsByCategory(currentCategory._id, pageNumber, productsPerPage);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleBrandToggle = (brand) => {
@@ -183,18 +191,13 @@ const CategoryProductsPage = () => {
     priceRange.min !== (Math.floor(productPriceRange.min) || 0) ||
     priceRange.max !== (Math.ceil(productPriceRange.max) || 1000);
 
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   const renderPagination = () => {
-    if (totalPages <= 1) return null;
+    if (!categoryTotalPages || categoryTotalPages <= 1) return null;
 
     const pages = [];
     const maxVisiblePages = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    let startPage = Math.max(1, categoryCurrentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(categoryTotalPages, startPage + maxVisiblePages - 1);
 
     if (endPage - startPage + 1 < maxVisiblePages) {
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
@@ -204,8 +207,8 @@ const CategoryProductsPage = () => {
     pages.push(
       <button
         key="prev"
-        onClick={() => handlePageChange(currentPage - 1)}
-        disabled={currentPage === 1}
+        onClick={() => handlePageChange(categoryCurrentPage - 1)}
+        disabled={categoryCurrentPage === 1}
         className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700"
       >
         Previous
@@ -219,7 +222,7 @@ const CategoryProductsPage = () => {
           key={i}
           onClick={() => handlePageChange(i)}
           className={`px-3 py-2 text-sm font-medium border ${
-            i === currentPage
+            i === categoryCurrentPage
               ? 'bg-primary text-white border-primary'
               : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700'
           }`}
@@ -233,8 +236,8 @@ const CategoryProductsPage = () => {
     pages.push(
       <button
         key="next"
-        onClick={() => handlePageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
+        onClick={() => handlePageChange(categoryCurrentPage + 1)}
+        disabled={categoryCurrentPage === categoryTotalPages}
         className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700"
       >
         Next
@@ -242,13 +245,24 @@ const CategoryProductsPage = () => {
     );
 
     return (
-      <div className="flex justify-center items-center mt-8">
+      <div className="flex flex-col sm:flex-row justify-between items-center mt-8 gap-4">
+        <div className="text-sm text-gray-600 dark:text-gray-400">
+          Showing page {categoryCurrentPage} of {categoryTotalPages} ({categoryTotalProducts} total products)
+        </div>
         <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
           {pages}
         </nav>
       </div>
     );
   };
+
+  // Handle filters change - refetch data when filters change
+  useEffect(() => {
+    if (currentCategory && (hasActiveFilters || searchQuery)) {
+      // Reset to first page when filters change
+      getProductsByCategory(currentCategory._id, 1, productsPerPage);
+    }
+  }, [searchQuery, selectedBrands, selectedRating, inStockOnly, priceRange]);
 
   if (isLoading) {
     return (
@@ -274,7 +288,7 @@ const CategoryProductsPage = () => {
               {error}
             </p>
             <button 
-              onClick={() => window.location.reload()}
+              onClick={() => currentCategory && getProductsByCategory(currentCategory._id, 1, productsPerPage)}
               className="inline-flex items-center px-6 py-3 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors"
             >
               Try Again
@@ -341,7 +355,7 @@ const CategoryProductsPage = () => {
                 {currentCategory.name}
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                {filteredProducts.length} products available
+                {categoryTotalProducts || filteredProducts.length} products available
               </p>
             </div>
           </div>
@@ -547,7 +561,7 @@ const CategoryProductsPage = () => {
                       </button>
                     )}
                     <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                      {filteredProducts.length} of {productsByCategory?.length || 0} products
+                      {filteredProducts.length} of {categoryTotalProducts || productsByCategory?.length || 0} products
                     </div>
                   </div>
                 </div>
@@ -557,7 +571,7 @@ const CategoryProductsPage = () => {
         </div>
 
         {/* Products Grid/List */}
-        {currentProducts.length > 0 ? (
+        {filteredProducts.length > 0 ? (
           <>
             <div className={`
               ${viewMode === 'grid' 
@@ -565,7 +579,7 @@ const CategoryProductsPage = () => {
                 : 'space-y-6'
               }
             `}>
-              {currentProducts.map((product) => (
+              {filteredProducts.map((product) => (
                 <ProductCard 
                   key={product._id} 
                   product={product} 
@@ -587,11 +601,6 @@ const CategoryProductsPage = () => {
 
             {/* Pagination */}
             {renderPagination()}
-
-            {/* Results Summary */}
-            <div className="text-center mt-8 text-sm text-gray-600 dark:text-gray-400">
-              Showing {indexOfFirstProduct + 1}-{Math.min(indexOfLastProduct, filteredProducts.length)} of {filteredProducts.length} products
-            </div>
           </>
         ) : (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center transition-colors">
