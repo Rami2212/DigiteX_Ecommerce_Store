@@ -1,7 +1,9 @@
 const orderRepo = require('../repositories/order.repository');
 const cartService = require('./cart.service');
 const productRepo = require('../repositories/product.repository');
+const userRepo = require('../repositories/user.repository');
 const paymentService = require('./payment.service');
+const { sendOrderConfirmationEmail } = require('../utils/sendEmail');
 
 exports.createOrder = async (userId, orderData) => {
     const { items, shippingAddress, paymentMethod, totalAmount, shippingMethod } = orderData;
@@ -120,6 +122,12 @@ exports.createOrderFromCart = async (userId, shippingAddress, paymentMethod) => 
             });
             throw error;
         }
+    }
+
+    // send order confirmation email - only for non-stripe payments
+    if (paymentMethod === 'COD') {
+        const user = await userRepo.findById(userId);
+        await sendOrderConfirmationEmail(user.email, order);
     }
 
     // Clear cart for non-stripe payments immediately

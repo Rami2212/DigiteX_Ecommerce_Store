@@ -3,6 +3,7 @@ const productRepo = require('../repositories/product.repository');
 
 exports.getCart = async (userId) => {
     let cart = await cartRepo.getCartByUserId(userId);
+
     if (!cart) {
         cart = await cartRepo.createCart(userId);
     }
@@ -28,6 +29,7 @@ exports.addToCart = async (userId, data) => {
 
     // Get or create cart
     let cart = await cartRepo.getCartByUserId(userId);
+
     if (!cart) {
         cart = await cartRepo.createCart(userId);
     }

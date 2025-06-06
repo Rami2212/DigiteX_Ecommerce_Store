@@ -1,6 +1,7 @@
 const stripe = require('../config/stripe');
 const orderRepo = require('../repositories/order.repository');
 const cartService = require('./cart.service');
+const { sendOrderConfirmationEmail } = require('../utils/sendEmail');
 
 // Create payment intent for an order
 exports.createPaymentIntent = async (orderId, userId) => {
@@ -91,6 +92,10 @@ exports.updatePaymentStatus = async (orderId, paymentStatus, paymentIntentId = n
                 updateData.status = 'Confirmed';
                 updateData.paymentStatus = 'Paid';
                 updateData.paidAt = new Date();
+
+                const fullOrder = await orderRepo.getOrderById(orderId);
+                await sendOrderConfirmationEmail(fullOrder.user.email, fullOrder);
+
                 break;
             case 'failed':
             case 'canceled':
