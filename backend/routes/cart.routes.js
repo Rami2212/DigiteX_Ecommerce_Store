@@ -18,6 +18,9 @@ router.post('/add', cartController.addToCart);
 // PUT update cart item quantity
 router.put('/update/:productId', cartController.updateCartItem);
 
+// Check whether item in the cart
+router.get('/check/:productId', cartController.checkItemInCart);
+
 // DELETE remove item from cart
 router.delete('/remove/:productId', cartController.removeFromCart);
 

@@ -120,3 +120,18 @@ exports.getCartItemCount = async (userId) => {
     const cart = await cartRepo.getCartByUserId(userId);
     return cart ? cart.totalItems : 0;
 };
+
+exports.isItemInCart = async (userId, productId, variantColor) => {
+    const cart = await cartRepo.getCartByUserId(userId);
+    if (!cart) {
+        return false;
+    }
+
+    const itemExists = cart.items.some(item => {
+        const productMatch = item.product._id.toString() === productId;
+        if (!variantColor) return productMatch;
+        return productMatch && item.selectedVariant?.color === variantColor;
+    });
+
+    return itemExists;
+};

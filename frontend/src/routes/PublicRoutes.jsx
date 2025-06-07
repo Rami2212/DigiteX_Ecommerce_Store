@@ -24,10 +24,9 @@ import RetryPaymentPage from '../pages/public/payment/RetryPayment';
 import OrderPendingPage from '../pages/public/payment/OrderPending';
 import SingleProductPage from '../pages/public/products/SingleProduct';
 import ProductsPage from '../pages/public/products/Products';
-
-// Placeholder pages
-const HomePage = () => <div>Home Page</div>;
-const NotFoundPage = () => <div>404 - Page Not Found</div>;
+import HomePage from '../pages/public/Home';
+import NotFoundPage from '../pages/public/NotFoundPage';
+import AboutPage from '../pages/public/About';
 
 const PublicRoutes = () => {
   const location = useLocation(); // required for AnimatePresence
@@ -49,6 +48,8 @@ const PublicRoutes = () => {
         {/* Public Routes */}
         <Route path="/" element={<MainLayout />}>
           <Route index element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<CategoriesPage />} />
 
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/category/:categorySlug" element={<CategoryProductsPage />} />

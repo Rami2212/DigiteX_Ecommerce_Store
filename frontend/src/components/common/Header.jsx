@@ -1,17 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  HiOutlineSearch, 
-  HiOutlineShoppingCart, 
-  HiOutlineUser, 
-  HiOutlineMenu, 
+import {
+  HiOutlineSearch,
+  HiOutlineShoppingCart,
+  HiOutlineUser,
+  HiOutlineMenu,
   HiOutlineX,
   HiOutlineHeart,
   HiOutlineSun,
   HiOutlineMoon,
   HiChevronDown
 } from 'react-icons/hi';
-import { 
+import {
   FiLogOut,
   FiSettings,
   FiPackage
@@ -19,6 +19,7 @@ import {
 import Logo from './Logo';
 import { useAuth } from '../../hooks/useAuth';
 import { useCategory } from '../../hooks/useCategory';
+import { useCart } from '../../hooks/useCart';
 import { useTheme } from '../../hooks/useTheme';
 
 
@@ -65,45 +66,45 @@ const AccountDropdown = ({ isAuthenticated, user, logout }) => {
                   {user?.email || 'user@example.com'}
                 </p>
               </div>
-              
-              <Link 
-                to="/user/profile" 
+
+              <Link
+                to="/user/profile"
                 className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 onClick={() => setIsOpen(false)}
               >
                 <HiOutlineUser className="h-4 w-4 mr-3" />
                 My Profile
               </Link>
-              
-              <Link 
-                to="/user/orders" 
+
+              <Link
+                to="/user/orders"
                 className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 onClick={() => setIsOpen(false)}
               >
                 <FiPackage className="h-4 w-4 mr-3" />
                 My Orders
               </Link>
-              
-              <Link 
-                to="/user/wishlist" 
+
+              <Link
+                to="/user/wishlist"
                 className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 onClick={() => setIsOpen(false)}
               >
                 <HiOutlineHeart className="h-4 w-4 mr-3" />
                 Wishlist
               </Link>
-              
-              <Link 
-                to="/user/settings" 
+
+              <Link
+                to="/user/settings"
                 className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 onClick={() => setIsOpen(false)}
               >
                 <FiSettings className="h-4 w-4 mr-3" />
                 Settings
               </Link>
-              
+
               <div className="border-t border-gray-200 dark:border-gray-700 mt-2 pt-2">
-                <button 
+                <button
                   onClick={handleLogout}
                   className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
@@ -114,15 +115,15 @@ const AccountDropdown = ({ isAuthenticated, user, logout }) => {
             </>
           ) : (
             <>
-              <Link 
-                to="/auth/login" 
+              <Link
+                to="/auth/login"
                 className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 onClick={() => setIsOpen(false)}
               >
                 Sign In
               </Link>
-              <Link 
-                to="/auth/register" 
+              <Link
+                to="/auth/register"
                 className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 onClick={() => setIsOpen(false)}
               >
@@ -176,8 +177,8 @@ const CategoriesMegaMenu = ({ categories = [] }) => {
                   />
                 </div>
                 <h3 className="font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
-                  <Link 
-                    to={`/category/${category.name.toLowerCase().replace(/\s+/g, '-')}`} 
+                  <Link
+                    to={`/category/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
                     onClick={() => setIsOpen(false)}
                   >
                     {category.name}
@@ -227,16 +228,26 @@ const CategoriesMegaMenu = ({ categories = [] }) => {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [cartCount, setCartCount] = useState(0);
-  
+  const [cartCount, setCartCount] = useState('');
+
   const { isAuthenticated, user, logout } = useAuth();
   const { categories, getCategories } = useCategory();
+  const { getCart, itemCount, cartItems } = useCart();
   const { theme, toggle } = useTheme();
 
   // Load categories on component mount
   useEffect(() => {
     getCategories();
-  }, []);
+    
+    if (isAuthenticated) {
+      getCart();
+    }
+  }, [isAuthenticated]); 
+
+  useEffect(() => {
+    const cartItemQuantity = itemCount;
+    setCartCount(cartItemQuantity);
+  }, [itemCount, cartItems]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -301,7 +312,7 @@ const Header = () => {
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               />
-              <button 
+              <button
                 onClick={handleSearch}
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-primary transition-colors"
               >
@@ -313,7 +324,7 @@ const Header = () => {
           {/* Icons */}
           <div className="flex items-center space-x-4">
             {/* Dark Mode Toggle */}
-            <button 
+            <button
               onClick={toggle}
               className="hidden md:flex p-2 hover:text-primary transition-colors"
               aria-label="Toggle dark mode"
@@ -339,9 +350,9 @@ const Header = () => {
             </Link>
 
             {/* Account Dropdown */}
-            <AccountDropdown 
-              isAuthenticated={isAuthenticated} 
-              user={user} 
+            <AccountDropdown
+              isAuthenticated={isAuthenticated}
+              user={user}
               logout={logout}
             />
 
@@ -354,8 +365,8 @@ const Header = () => {
       </div>
 
       {/* Navigation */}
-      <NavigationBar 
-        isMenuOpen={isMenuOpen} 
+      <NavigationBar
+        isMenuOpen={isMenuOpen}
         toggleMenu={toggleMenu}
         categories={categories}
         searchQuery={searchQuery}
@@ -388,10 +399,34 @@ const NavigationBar = ({ isMenuOpen, toggleMenu, categories, searchQuery, setSea
           </li>
           <li>
             <Link
-              to="/support"
+              to="/products"
               className="font-medium text-gray-800 dark:text-gray-200 hover:text-primary transition-colors"
             >
-              Support
+              Products
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/categories"
+              className="font-medium text-gray-800 dark:text-gray-200 hover:text-primary transition-colors"
+            >
+              Categories
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/about"
+              className="font-medium text-gray-800 dark:text-gray-200 hover:text-primary transition-colors"
+            >
+              About
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/contact"
+              className="font-medium text-gray-800 dark:text-gray-200 hover:text-primary transition-colors"
+            >
+              Contact
             </Link>
           </li>
         </ul>
@@ -399,16 +434,14 @@ const NavigationBar = ({ isMenuOpen, toggleMenu, categories, searchQuery, setSea
 
       {/* Mobile Navigation */}
       <div
-        className={`fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden transition-opacity duration-300 ${
-          isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
+        className={`fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden transition-opacity duration-300 ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          }`}
         onClick={toggleMenu}
       />
 
       <div
-        className={`fixed top-0 left-0 h-full w-4/5 max-w-sm bg-white dark:bg-gray-800 z-40 md:hidden transform transition-transform duration-300 ease-in-out ${
-          isMenuOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed top-0 left-0 h-full w-4/5 max-w-sm bg-white dark:bg-gray-800 z-40 md:hidden transform transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-between items-center">
@@ -418,7 +451,7 @@ const NavigationBar = ({ isMenuOpen, toggleMenu, categories, searchQuery, setSea
             </button>
           </div>
         </div>
-        
+
         {/* Mobile Search */}
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="relative">
@@ -430,7 +463,7 @@ const NavigationBar = ({ isMenuOpen, toggleMenu, categories, searchQuery, setSea
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
             />
-            <button 
+            <button
               onClick={handleSearch}
               className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-primary transition-colors"
             >
@@ -452,14 +485,54 @@ const NavigationBar = ({ isMenuOpen, toggleMenu, categories, searchQuery, setSea
                   Home
                 </Link>
               </li>
-              
+
               <li>
                 <Link
-                  to="/support"
+                  to="/products"
                   className="flex items-center font-medium text-gray-800 dark:text-gray-200 hover:text-primary transition-colors"
                   onClick={toggleMenu}
                 >
-                  Support
+                  Products
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  to="/products"
+                  className="flex items-center font-medium text-gray-800 dark:text-gray-200 hover:text-primary transition-colors"
+                  onClick={toggleMenu}
+                >
+                  Products
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  to="/categories"
+                  className="flex items-center font-medium text-gray-800 dark:text-gray-200 hover:text-primary transition-colors"
+                  onClick={toggleMenu}
+                >
+                  Categories
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  to="/about"
+                  className="flex items-center font-medium text-gray-800 dark:text-gray-200 hover:text-primary transition-colors"
+                  onClick={toggleMenu}
+                >
+                  About
+                </Link>
+              </li>
+              <li>
+
+                <Link
+                  to="/contact"
+                  className="flex items-center font-medium text-gray-800 dark:text-gray-200 hover:text-primary transition-colors"
+                  onClick={toggleMenu}
+                >
+                  Contact
                 </Link>
               </li>
 
@@ -474,7 +547,7 @@ const NavigationBar = ({ isMenuOpen, toggleMenu, categories, searchQuery, setSea
                   Wishlist
                 </Link>
               </li>
-              
+
               <li>
                 <button
                   onClick={toggleDarkMode}

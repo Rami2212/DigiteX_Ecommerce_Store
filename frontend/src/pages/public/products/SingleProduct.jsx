@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  FiHeart, 
+import {
+  FiHeart,
   FiShoppingCart,
   FiStar,
   FiMinus,
@@ -32,7 +32,7 @@ const SingleProductPage = () => {
   const { addToWishlist, removeFromWishlist, isItemInWishlist, isLoading: wishlistLoading } = useWishlist();
   const { isAuthenticated } = useAuth();
   const { getCategoryById, selectedCategory } = useCategory();
-  
+
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -112,7 +112,7 @@ const SingleProductPage = () => {
   };
 
   const product = selectedProduct;
-  const discountPercentage = product?.salePrice && product?.price 
+  const discountPercentage = product?.salePrice && product?.price
     ? Math.round(((product.price - product.salePrice) / product.price) * 100)
     : 0;
 
@@ -131,16 +131,16 @@ const SingleProductPage = () => {
     for (let i = 0; i < fullStars; i++) {
       stars.push(<FiStar key={i} className="h-4 w-4 text-yellow-400 fill-current" />);
     }
-    
+
     if (hasHalfStar) {
       stars.push(<FiStar key="half" className="h-4 w-4 text-yellow-400 fill-current opacity-50" />);
     }
-    
+
     const remainingStars = 5 - Math.ceil(rating);
     for (let i = 0; i < remainingStars; i++) {
       stars.push(<FiStar key={`empty-${i}`} className="h-4 w-4 text-gray-300" />);
     }
-    
+
     return stars;
   };
 
@@ -155,7 +155,7 @@ const SingleProductPage = () => {
         quantity: quantity,
         selectedVariant: selectedVariant || {}
       };
-      
+
       await addToCart(cartData);
       setQuantity(1);
     } catch (error) {
@@ -165,7 +165,7 @@ const SingleProductPage = () => {
 
   const handleUpdateCartQuantity = async (newQuantity) => {
     if (!isAuthenticated || newQuantity < 0) return;
-    
+
     try {
       if (newQuantity === 0) {
         await removeFromCart(product._id, selectedVariant?.color);
@@ -284,18 +284,23 @@ const SingleProductPage = () => {
         {/* Breadcrumbs */}
         <motion.nav variants={itemVariants} className="mb-4">
           <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-            <button 
+            <button
               onClick={() => navigate('/')}
               className="hover:text-primary transition-colors"
             >
               <FiHome className="h-4 w-4" />
             </button>
             <FiChevronRight className="h-4 w-4" />
-            <span>Products</span>
+            <button
+                  onClick={() => navigate(`/products`)}
+                  className="hover:text-primary transition-colors"
+                >
+                  Products
+                </button>
             {product.category && (
               <>
                 <FiChevronRight className="h-4 w-4" />
-                <button 
+                <button
                   onClick={() => navigate(`/category/${categoryName}`)}
                   className="hover:text-primary transition-colors"
                 >
@@ -327,7 +332,7 @@ const SingleProductPage = () => {
           <motion.div variants={itemVariants} className="space-y-3">
             {/* Main Image */}
             <div className="relative lg:pr-12">
-              <div 
+              <div
                 className="aspect-square bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden cursor-pointer mx-auto"
                 onClick={handleMainImageClick}
               >
@@ -346,11 +351,10 @@ const SingleProductPage = () => {
                   <button
                     key={index}
                     onClick={() => handleImageClick(index)}
-                    className={`flex-shrink-0 w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border-2 transition-colors ${
-                      allImages[selectedImageIndex] === image
+                    className={`flex-shrink-0 w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border-2 transition-colors ${allImages[selectedImageIndex] === image
                         ? 'border-primary'
                         : 'border-gray-200 dark:border-gray-700 hover:border-primary'
-                    }`}
+                      }`}
                   >
                     <img
                       src={image}
@@ -375,7 +379,7 @@ const SingleProductPage = () => {
               <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-3">
                 {product.name}
               </h1>
-              
+
               {/* Rating */}
               {product.rating && (
                 <div className="flex items-center gap-2 mb-3">
@@ -427,11 +431,10 @@ const SingleProductPage = () => {
                     <button
                       key={index}
                       onClick={() => handleVariantChange(variant)}
-                      className={`w-8 h-8 rounded-full border-2 transition-all duration-200 ${
-                        selectedVariant?.color === variant.color
+                      className={`w-8 h-8 rounded-full border-2 transition-all duration-200 ${selectedVariant?.color === variant.color
                           ? 'border-primary scale-110 shadow-md'
                           : 'border-gray-300 dark:border-gray-600 hover:border-primary hover:scale-105'
-                      }`}
+                        }`}
                       style={{ backgroundColor: variant.color.toLowerCase() }}
                       title={variant.color}
                     >
@@ -480,40 +483,14 @@ const SingleProductPage = () => {
                     Add to Cart
                   </Button>
                 ) : (
-                  <div className="flex-1 flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-lg p-2">
-                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                      In Cart:
-                    </span>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => handleUpdateCartQuantity(cartQuantity - 1)}
-                        className="p-1 hover:bg-white dark:hover:bg-gray-600 rounded transition-colors"
-                        disabled={cartQuantity <= 1}
-                      >
-                        <FiMinus className="h-3 w-3" />
-                      </button>
-                      
-                      <span className="font-bold text-sm min-w-[1.5rem] text-center">
-                        {cartQuantity}
-                      </span>
-                      
-                      <button
-                        onClick={() => handleUpdateCartQuantity(cartQuantity + 1)}
-                        className="p-1 hover:bg-white dark:hover:bg-gray-600 rounded transition-colors"
-                      >
-                        <FiPlus className="h-3 w-3" />
-                      </button>
-                    </div>
-                    
-                    <Button
-                      onClick={() => handleUpdateCartQuantity(0)}
-                      variant="outline"
-                      size="sm"
-                      className="ml-auto text-xs px-2 py-1"
-                    >
-                      Remove
-                    </Button>
-                  </div>
+                  <Button
+                    onClick={() => navigate('/cart')}
+                    variant="primary"
+                    className="flex-1 py-2"
+                    icon={<FiShoppingCart className="h-4 w-4" />}
+                  >
+                    View Cart ({cartQuantity})
+                  </Button>
                 )}
 
                 {/* Wishlist Button (smaller) */}
@@ -524,15 +501,14 @@ const SingleProductPage = () => {
                   className="p-2"
                   isLoading={wishlistLoading}
                 >
-                  <FiHeart 
-                    className={`h-4 w-4 ${
-                      isInWishlist 
-                        ? 'text-red-500 fill-current' 
+                  <FiHeart
+                    className={`h-4 w-4 ${isInWishlist
+                        ? 'text-red-500 fill-current'
                         : 'text-gray-500'
-                    }`} 
+                      }`}
                   />
                 </Button>
-                
+
                 {/* Share Button (smaller) */}
                 <Button
                   onClick={handleShare}
@@ -561,7 +537,7 @@ const SingleProductPage = () => {
                   <p className="text-gray-500 dark:text-gray-400">On orders over Rs. 2000</p>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-3 text-xs">
                 <div className="p-1.5 bg-blue-100 dark:bg-blue-900 rounded-md">
                   <FiShield className="h-3 w-3 text-blue-600 dark:text-blue-400" />
@@ -571,7 +547,7 @@ const SingleProductPage = () => {
                   <p className="text-gray-500 dark:text-gray-400">SSL encrypted</p>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-3 text-xs">
                 <div className="p-1.5 bg-purple-100 dark:bg-purple-900 rounded-md">
                   <FiRefreshCw className="h-3 w-3 text-purple-600 dark:text-purple-400" />
@@ -659,13 +635,13 @@ const SingleProductPage = () => {
               >
                 <FiX className="h-8 w-8" />
               </button>
-              
+
               <img
                 src={mainImage}
                 alt={product.name}
                 className="max-w-full max-h-full object-contain rounded-lg"
               />
-              
+
               {/* Thumbnail Navigation */}
               {allImages.length > 1 && (
                 <div className="flex justify-center gap-2 mt-4 overflow-x-auto">
@@ -673,11 +649,10 @@ const SingleProductPage = () => {
                     <button
                       key={index}
                       onClick={() => handleImageClick(index)}
-                      className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
-                        allImages[selectedImageIndex] === image
+                      className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${allImages[selectedImageIndex] === image
                           ? 'border-white'
                           : 'border-gray-500 hover:border-white'
-                      }`}
+                        }`}
                     >
                       <img
                         src={image}

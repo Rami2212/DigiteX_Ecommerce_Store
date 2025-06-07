@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   FiHeart, 
   FiShoppingCart,
   FiStar,
   FiEye,
-  FiCheck,
-  FiPlus,
-  FiMinus
+  FiCheck
 } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
@@ -17,15 +15,17 @@ import { useAuth } from '../../hooks/useAuth';
 import Button from '../common/Button';
 
 const ProductCard = ({ product }) => {
-  const { addToCart, isItemInCart, getItemQuantity, updateCartItem, isLoading: cartLoading } = useCart();
+  const { addToCart, isItemInCart, isLoading: cartLoading } = useCart();
   const { addToWishlist, removeFromWishlist, isItemInWishlist, isLoading: wishlistLoading } = useWishlist();
   const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   
   const [selectedVariant, setSelectedVariant] = useState(
     product.variants && product.variants.length > 0 ? product.variants[0] : null
   );
   const [quantity, setQuantity] = useState(1);
   const [isHovered, setIsHovered] = useState(false);
+  const [isInWishlist, setIsInWishlist] = useState(false);
 
   const productSlug = product.name?.toLowerCase().replace(/\s+/g, '-') || '';
   const discountPercentage = product.salePrice && product.price 
@@ -33,9 +33,18 @@ const ProductCard = ({ product }) => {
     : 0;
 
   const finalPrice = product.salePrice || product.price;
-  const inWishlist = isItemInWishlist(product._id, selectedVariant?.color);
-  const inCart = isItemInCart(product._id, selectedVariant?.color);
-  const cartQuantity = getItemQuantity(product._id, selectedVariant?.color);
+  
+  // Check if the specific variant (or no variant) is in cart
+  const inCart = selectedVariant 
+    ? isItemInCart(product._id, selectedVariant.color)
+    : isItemInCart(product._id, null);
+
+  // Update local wishlist state when component mounts or product changes
+  useEffect(() => {
+    if (product) {
+      setIsInWishlist(isItemInWishlist(product._id));
+    }
+  }, [product, isItemInWishlist]);
 
   const renderStars = (rating) => {
     const stars = [];
@@ -80,14 +89,10 @@ const ProductCard = ({ product }) => {
     }
   };
 
-  const handleUpdateQuantity = async (newQuantity) => {
-    if (!isAuthenticated || newQuantity < 1) return;
-    
-    try {
-      await updateCartItem(product._id, { quantity: newQuantity }, selectedVariant?.color);
-    } catch (error) {
-      console.error('Failed to update quantity:', error);
-    }
+  const handleViewCart = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate('/cart');
   };
 
   const handleToggleWishlist = async (e) => {
@@ -100,14 +105,15 @@ const ProductCard = ({ product }) => {
     }
 
     try {
-      if (inWishlist) {
-        await removeFromWishlist(product._id, selectedVariant?.color);
+      if (isInWishlist) {
+        await removeFromWishlist(product._id);
+        setIsInWishlist(false);
       } else {
         const wishlistData = {
-          productId: product._id,
-          selectedVariant: selectedVariant || {}
+          productId: product._id
         };
         await addToWishlist(wishlistData);
+        setIsInWishlist(true);
       }
     } catch (error) {
       console.error('Failed to toggle wishlist:', error);
@@ -180,7 +186,7 @@ const ProductCard = ({ product }) => {
           >
             <FiHeart 
               className={`h-5 w-5 transition-colors ${
-                inWishlist 
+                isInWishlist 
                   ? 'text-red-500 fill-current' 
                   : 'text-gray-600 dark:text-gray-400 hover:text-red-500'
               }`} 
@@ -224,34 +230,14 @@ const ProductCard = ({ product }) => {
               {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
             </Button>
           ) : (
-            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg p-2 shadow-lg">
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleUpdateQuantity(cartQuantity - 1);
-                }}
-                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                disabled={cartQuantity <= 1}
-              >
-                <FiMinus className="h-4 w-4" />
-              </button>
-              
-              <span className="flex-1 text-center font-medium text-sm">
-                {cartQuantity} in cart
-              </span>
-              
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleUpdateQuantity(cartQuantity + 1);
-                }}
-                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-              >
-                <FiPlus className="h-4 w-4" />
-              </button>
-            </div>
+            <Button
+              onClick={handleViewCart}
+              variant="outline"
+              className="w-full py-2 text-sm font-medium shadow-lg bg-white dark:bg-gray-800 border-primary text-primary hover:bg-primary hover:text-white"
+              icon={<FiShoppingCart className="h-4 w-4" />}
+            >
+              View Cart
+            </Button>
           )}
         </motion.div>
       </div>
@@ -338,26 +324,14 @@ const ProductCard = ({ product }) => {
               {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
             </Button>
           ) : (
-            <div className="flex-1 flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-lg p-2">
-              <button
-                onClick={() => handleUpdateQuantity(cartQuantity - 1)}
-                className="p-1 hover:bg-white dark:hover:bg-gray-600 rounded transition-colors"
-                disabled={cartQuantity <= 1}
-              >
-                <FiMinus className="h-4 w-4" />
-              </button>
-              
-              <span className="flex-1 text-center font-medium text-sm">
-                {cartQuantity}
-              </span>
-              
-              <button
-                onClick={() => handleUpdateQuantity(cartQuantity + 1)}
-                className="p-1 hover:bg-white dark:hover:bg-gray-600 rounded transition-colors"
-              >
-                <FiPlus className="h-4 w-4" />
-              </button>
-            </div>
+            <Button
+              onClick={handleViewCart}
+              variant="outline"
+              className="flex-1 py-2 text-sm border-primary text-primary hover:bg-primary hover:text-white"
+              icon={<FiShoppingCart className="h-4 w-4" />}
+            >
+              View Cart
+            </Button>
           )}
           
           <button
@@ -367,7 +341,7 @@ const ProductCard = ({ product }) => {
           >
             <FiHeart 
               className={`h-5 w-5 ${
-                inWishlist 
+                isInWishlist 
                   ? 'text-red-500 fill-current' 
                   : 'text-gray-500 dark:text-gray-400'
               }`} 
