@@ -14,10 +14,19 @@ import ForgotPassword from '../pages/auth/ForgotPassword';
 import ResetPassword from '../pages/auth/ResetPassword';
 import AuthSuccess from '../pages/auth/AuthSuccess';
 import AuthFailed from '../pages/auth/AuthFailed';
-
-// Placeholder pages
-const HomePage = () => <div>Home Page</div>;
-const NotFoundPage = () => <div>404 - Page Not Found</div>;
+import CategoriesPage from '../pages/public/Categories';
+import CategoryProductsPage from '../pages/public/CategoryProduct';
+import CartPage from '../pages/public/Cart';
+import CheckoutPage from '../pages/public/Checkout';
+import OrderSuccessPage from '../pages/public/payment/OrderSuccess';
+import PaymentFailedPage from '../pages/public/payment/PaymentFailed';
+import RetryPaymentPage from '../pages/public/payment/RetryPayment';
+import OrderPendingPage from '../pages/public/payment/OrderPending';
+import SingleProductPage from '../pages/public/products/SingleProduct';
+import ProductsPage from '../pages/public/products/Products';
+import HomePage from '../pages/public/Home';
+import NotFoundPage from '../pages/public/NotFoundPage';
+import AboutPage from '../pages/public/About';
 
 const PublicRoutes = () => {
   const location = useLocation(); // required for AnimatePresence
@@ -39,6 +48,21 @@ const PublicRoutes = () => {
         {/* Public Routes */}
         <Route path="/" element={<MainLayout />}>
           <Route index element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<CategoriesPage />} />
+
+          <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/category/:categorySlug" element={<CategoryProductsPage />} />
+
+          <Route path="/products" element={<ProductsPage />} />
+          <Route path="/product/:productId/:slug?" element={<SingleProductPage />} />
+
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
+          <Route path="/payment-failed/:orderId" element={<PaymentFailedPage />} />
+          <Route path="/order-pending/:orderId" element={<OrderPendingPage />} />
+          <Route path="/retry-payment/:orderId" element={<RetryPaymentPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

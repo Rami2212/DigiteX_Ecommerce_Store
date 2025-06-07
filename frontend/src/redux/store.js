@@ -3,6 +3,12 @@ import authReducer from './slices/authSlice';
 import themeReducer from './slices/themeSlice';
 import categoryReducer from './slices/categorySlice';
 import useReducer from './slices/userSlice';
+import addonSlice from './slices/addonSlice';
+import productSlice from './slices/productSlice';
+import cartSlice from './slices/cartSlice';
+import orderSlice from './slices/orderSlice';
+import paymentSlice from './slices/paymentSlice';
+import wishlistSlice from './slices/wishlistSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +16,12 @@ export const store = configureStore({
     theme: themeReducer,
     category: categoryReducer,
     user: useReducer,
+    addon: addonSlice,
+    product: productSlice,
+    cart: cartSlice,
+    order: orderSlice,
+    payment: paymentSlice,
+    wishlist: wishlistSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

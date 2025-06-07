@@ -29,7 +29,7 @@ const UserSidebar = ({ isOpen, onClose }) => {
     },
     {
       name: 'My Orders',
-      path: '/user/orders',
+      path: '/user/my-orders',
       icon: HiOutlineShoppingBag,
     },
     {

@@ -11,8 +11,10 @@ import {
   FiPackage,
   FiChevronDown,
   FiChevronRight,
-  FiX
+  FiX,
+  FiShoppingBag
 } from 'react-icons/fi';
+import { BiCube } from 'react-icons/bi';
 
 const AdminSidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
@@ -43,12 +45,12 @@ const AdminSidebar = ({ isOpen, onClose }) => {
       ]
     },
     {
-      title: 'Media',
-      icon: FiImage,
-      path: '/admin/media',
+      title: 'Addons',
+      icon: BiCube,
+      path: '/admin/addons',
       children: [
-        { title: 'Library', path: '/admin/media' },
-        { title: 'Add New', path: '/admin/media/upload' }
+        { title: 'Addons', path: '/admin/addons' },
+        { title: 'Add New Addon', path: '/admin/add-addon' }
       ]
     },
     {
@@ -56,10 +58,16 @@ const AdminSidebar = ({ isOpen, onClose }) => {
       icon: FiPackage,
       path: '/admin/products',
       children: [
-        { title: 'All Products', path: '/admin/products' },
-        { title: 'Add Product', path: '/admin/products/new' },
-        { title: 'Categories', path: '/admin/products/categories' },
-        { title: 'Orders', path: '/admin/products/orders' }
+        { title: 'Products', path: '/admin/products' },
+        { title: 'Add Product', path: '/admin/add-product' },
+      ]
+    },
+    {
+      title: 'Orders',
+      icon: FiShoppingBag,
+      path: '/admin/orders',
+      children: [
+        { title: 'Orders', path: '/admin/orders' },
       ]
     },
     {
@@ -71,11 +79,6 @@ const AdminSidebar = ({ isOpen, onClose }) => {
         { title: 'Reports', path: '/admin/analytics/reports' },
         { title: 'Traffic', path: '/admin/analytics/traffic' }
       ]
-    },
-    {
-      title: 'Messages',
-      icon: FiMail,
-      path: '/admin/messages'
     },
     {
       title: 'Security',
@@ -221,7 +224,7 @@ const AdminSidebar = ({ isOpen, onClose }) => {
                         className={({ isActive }) => `
                           block px-3 py-2 rounded-md text-sm transition-colors
                           ${isActive
-                            ? 'bg-blue-500 text-white'
+                            ? 'bg-slate-800 text-white'
                             : 'text-slate-400 hover:bg-slate-800 hover:text-white'
                           }
                         `}

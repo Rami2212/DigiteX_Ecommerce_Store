@@ -12,6 +12,14 @@ import EditCategoryPage from '../pages/admin/categories/EditCategory';
 import UsersPage from '../pages/admin/users/Users';
 import AddUserPage from '../pages/admin/users/AddUser';
 import EditUserPage from '../pages/admin/users/EditUser';
+import AddonsPage from '../pages/admin/addons/Addons';
+import AddAddonPage from '../pages/admin/addons/AddAddon';
+import EditAddonPage from '../pages/admin/addons/EditAddon';
+import AddProductPage from '../pages/admin/products/AddProduct';
+import EditProductPage from '../pages/admin/products/EditProduct';
+import ProductsPage from '../pages/admin/products/Products';
+import OrdersPage from '../pages/admin/orders/Orders';
+import SingleOrderPage from '../pages/admin/orders/Order';
 
 const AdminRoutes = () => {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
@@ -66,6 +74,20 @@ const AdminRoutes = () => {
         <Route path="add-user" element={<AddUserPage />} />
         <Route path="edit-user/:id" element={<EditUserPage />} />
         
+        {/* Adons */}
+        <Route path="addons" element={<AddonsPage />} />
+        <Route path="add-addon" element={<AddAddonPage />} />
+        <Route path="edit-addon/:id" element={<EditAddonPage />} />
+
+        {/* Products */}
+        <Route path="products" element={<ProductsPage />} />
+        <Route path="add-product" element={<AddProductPage />} />
+        <Route path="edit-product/:id" element={<EditProductPage />} />
+        
+        {/* Orders */}
+        <Route path="orders" element={<OrdersPage />} />
+        <Route path="order/:orderId" element={<SingleOrderPage />} />
+
         {/* Catch all - redirect to dashboard */}
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Route>
