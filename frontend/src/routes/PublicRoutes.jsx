@@ -22,6 +22,8 @@ import OrderSuccessPage from '../pages/public/payment/OrderSuccess';
 import PaymentFailedPage from '../pages/public/payment/PaymentFailed';
 import RetryPaymentPage from '../pages/public/payment/RetryPayment';
 import OrderPendingPage from '../pages/public/payment/OrderPending';
+import SingleProductPage from '../pages/public/products/SingleProduct';
+import ProductsPage from '../pages/public/products/Products';
 
 // Placeholder pages
 const HomePage = () => <div>Home Page</div>;
@@ -47,8 +49,13 @@ const PublicRoutes = () => {
         {/* Public Routes */}
         <Route path="/" element={<MainLayout />}>
           <Route index element={<HomePage />} />
+
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/category/:categorySlug" element={<CategoryProductsPage />} />
+
+          <Route path="/products" element={<ProductsPage />} />
+          <Route path="/product/:productId/:slug?" element={<SingleProductPage />} />
+
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />

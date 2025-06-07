@@ -24,7 +24,7 @@ const deleteOldImage = (imageUrl) => {
 };
 
 exports.addProduct = async (data, files) => {
-    const existing = await productRepo.getAllProducts();
+    const existing = await productRepo.getAll();
     if (existing.some(p => p.name.toLowerCase() === data.name.toLowerCase())) {
         throw new Error('Product name already exists');
     }
@@ -113,7 +113,7 @@ exports.updateProduct = async (id, data, files) => {
 
     // Check for name uniqueness (excluding current product)
     if (data.name) {
-        const allProducts = await productRepo.getAllProducts();
+        const allProducts = await productRepo.getAll();
         const nameExists = allProducts.some(p =>
             p._id.toString() !== id &&
             p.name.toLowerCase() === data.name.toLowerCase()

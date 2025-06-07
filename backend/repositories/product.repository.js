@@ -2,6 +2,8 @@ const Product = require('../models/product.model');
 
 exports.createProduct = async (data) => await Product.create(data);
 
+exports.getAll = async () => await Product.find();
+
 exports.getAllProducts = async (page = 1, limit = 10) => {
     const skip = (page - 1) * limit;
 
