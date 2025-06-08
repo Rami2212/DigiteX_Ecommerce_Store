@@ -1,4 +1,3 @@
-// utils/sendEmail.js
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
@@ -222,6 +221,107 @@ exports.sendOrderConfirmationEmail = async (email, orderData) => {
                         
                         <p style="margin: 15px 0 0 0; color: #888; font-size: 14px;">Thank you for choosing DigiteX - Your trusted laptop partner in Sri Lanka</p>
                     </div>
+                </div>
+            </div>
+        `
+    });
+};
+
+exports.sendContactConfirmationEmail = async (email, name, subject) => {
+    await transporter.sendMail({
+        from: `"DigiteX Support" <${process.env.SMTP_EMAIL}>`,
+        to: email,
+        subject: 'We received your message - DigiteX Support',
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #eaeaea; border-radius: 10px; padding: 30px; background-color: #ffffff;">
+                <div style="text-align: center;">
+                    <h2 style="color: #1E90FF; margin-bottom: 10px;">Thank you for contacting us! 📧</h2>
+                    <p style="font-size: 16px; color: #555;">We have received your message and will get back to you soon.</p>
+                </div>
+                <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="color: #333; margin-top: 0;">Your Message Details:</h3>
+                    <p><strong>Name:</strong> ${name}</p>
+                    <p><strong>Subject:</strong> ${subject}</p>
+                    <p><strong>Email:</strong> ${email}</p>
+                </div>
+                <div style="text-align: center; margin: 30px 0;">
+                    <p style="font-size: 16px; color: #333;">Our support team typically responds within <strong>24 hours</strong>.</p>
+                    <p style="font-size: 14px; color: #777;">Reference ID: #${Date.now()}</p>
+                </div>
+                <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
+                <p style="font-size: 14px; color: #888;">If you have any urgent concerns, feel free to call us directly.</p>
+                <p style="font-size: 14px; color: #888;">- The DigiteX Support Team</p>
+                <div style="text-align: center; margin-top: 20px;">
+                    <img src="https://i.imgur.com/EVqJ2Aj.png" alt="DigiteX Logo" style="width: 100px; opacity: 0.6;" />
+                </div>
+            </div>
+        `
+    });
+};
+
+exports.sendContactNotificationEmail = async (contact) => {
+    const adminEmail = process.env.EMAIL_USER;
+
+    await transporter.sendMail({
+        from: `"DigiteX System" <${process.env.SMTP_EMAIL}>`,
+        to: adminEmail,
+        subject: `New Contact Form Submission - ${contact.subject}`,
+        html: `
+            <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f8f9fa;">
+                <h2 style="color: #dc3545;">🔔 New Contact Form Submission</h2>
+                <div style="background-color: white; padding: 20px; border-radius: 8px; border-left: 4px solid #1E90FF;">
+                    <h3>Contact Details:</h3>
+                    <p><strong>Name:</strong> ${contact.name}</p>
+                    <p><strong>Email:</strong> ${contact.email}</p>
+                    <p><strong>Phone:</strong> ${contact.phone || 'Not provided'}</p>
+                    <p><strong>Subject:</strong> ${contact.subject}</p>
+                    <p><strong>Priority:</strong> ${contact.priority}</p>
+                    <p><strong>Submitted:</strong> ${new Date(contact.createdAt).toLocaleString()}</p>
+                    <p><strong>IP Address:</strong> ${contact.ipAddress}</p>
+                </div>
+                <div style="background-color: white; padding: 20px; border-radius: 8px; margin-top: 10px;">
+                    <h3>Message:</h3>
+                    <p style="white-space: pre-wrap; background-color: #f8f9fa; padding: 15px; border-radius: 4px;">${contact.message}</p>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <p style="font-size: 14px; color: #666;">Login to admin panel to respond to this message.</p>
+                </div>
+            </div>
+        `
+    });
+};
+
+// utils/sendEmail.js - Add this new template
+exports.sendContactReplyEmail = async (email, customerName, originalSubject, replyMessage) => {
+    await transporter.sendMail({
+        from: `"DigiteX Support" <${process.env.SMTP_EMAIL}>`,
+        to: email,
+        subject: `Re: ${originalSubject}`,
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #eaeaea; border-radius: 10px; padding: 30px; background-color: #ffffff;">
+                <div style="text-align: center;">
+                    <h2 style="color: #1E90FF; margin-bottom: 10px;">Response from DigiteX Support 💬</h2>
+                    <p style="font-size: 16px; color: #555;">Hello ${customerName}, here's our response to your inquiry.</p>
+                </div>
+                
+                <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <p><strong>Regarding:</strong> ${originalSubject}</p>
+                </div>
+
+                <div style="background-color: #e8f4fd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #1E90FF;">
+                    <h3 style="color: #1E90FF; margin-top: 0;">Our Response:</h3>
+                    <div style="white-space: pre-wrap; color: #333; line-height: 1.6;">
+                        ${replyMessage}
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <p style="font-size: 14px; color: #666;">Need further assistance? Reply to this email or contact us directly.</p>
+                    <p style="font-size: 14px; color: #888;">- The DigiteX Support Team</p>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <img src="https://i.imgur.com/EVqJ2Aj.png" alt="DigiteX Logo" style="width: 100px; opacity: 0.6;" />
                 </div>
             </div>
         `

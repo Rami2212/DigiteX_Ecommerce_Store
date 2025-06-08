@@ -27,6 +27,7 @@ import ProductsPage from '../pages/public/products/Products';
 import HomePage from '../pages/public/Home';
 import NotFoundPage from '../pages/public/NotFoundPage';
 import AboutPage from '../pages/public/About';
+import ContactPage from '../pages/public/Contact';
 
 const PublicRoutes = () => {
   const location = useLocation(); // required for AnimatePresence
@@ -49,7 +50,7 @@ const PublicRoutes = () => {
         <Route path="/" element={<MainLayout />}>
           <Route index element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
-          <Route path="/contact" element={<CategoriesPage />} />
+          <Route path="/contact" element={<ContactPage />} />
 
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/category/:categorySlug" element={<CategoryProductsPage />} />

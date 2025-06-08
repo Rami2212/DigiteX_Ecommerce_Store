@@ -13,6 +13,8 @@ import VerifyEmail from '../pages/user/profile/VerifyEmail';
 import ChangeEmail from '../pages/user/profile/ChangeEmail';
 import MyOrders from '../pages/user/orders/MyOrders';
 import Order from '../pages/user/orders/Order';
+import WishlistPage from '../pages/user/Wishlist';
+import UserStatsPage from '../pages/user/Stats';
 
 // User pages
 // Import your user pages here
@@ -42,11 +44,9 @@ const UserRoutes = () => {
           <Route path="/my-orders" element={<MyOrders />} />
           <Route path="/order/:orderId" element={<Order />} />
 
-          {/* Example:
-          <Route path="/settings" element={<UserSettings />} />
-          <Route path="/orders" element={<UserOrders />} />
-          */}
-          
+          <Route path="/wishlist" element={<WishlistPage />} />
+          <Route path="/stats" element={<UserStatsPage />} />
+
           {/* Catch all route */}
           <Route path="*" element={<Navigate to="/user" replace />} />
         </Route>

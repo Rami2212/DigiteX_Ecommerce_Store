@@ -20,6 +20,10 @@ import EditProductPage from '../pages/admin/products/EditProduct';
 import ProductsPage from '../pages/admin/products/Products';
 import OrdersPage from '../pages/admin/orders/Orders';
 import SingleOrderPage from '../pages/admin/orders/Order';
+import ContactsPage from '../pages/admin/contact/Contacts';
+import ContactDetailPage from '../pages/admin/contact/ContactDetail';
+import AdminProfile from '../pages/admin/profile/MyProfile';
+import AdminEditProfile from '../pages/admin/profile/EditProfile';
 
 const AdminRoutes = () => {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
@@ -63,6 +67,10 @@ const AdminRoutes = () => {
       >
         {/* Default admin dashboard */}
         <Route index element={<AdminDashboard />} />
+
+        {/* Profile */}
+        <Route path="my-profile" element={<AdminProfile />} />
+        <Route path="edit-profile/" element={<AdminEditProfile />} />
         
         {/* Categories */}
         <Route path="categories" element={<CategoriesPage />} />
@@ -87,6 +95,10 @@ const AdminRoutes = () => {
         {/* Orders */}
         <Route path="orders" element={<OrdersPage />} />
         <Route path="order/:orderId" element={<SingleOrderPage />} />
+
+        {/* Contacts */}
+        <Route path="contacts" element={<ContactsPage />} />
+        <Route path="contact-detail/:contactId" element={<ContactDetailPage />} />
 
         {/* Catch all - redirect to dashboard */}
         <Route path="*" element={<Navigate to="/admin" replace />} />

@@ -244,7 +244,7 @@ const MyProfile = () => {
                 variants={itemVariants}
                 className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-red-200 dark:border-red-800"
             >
-                <h2 className="text-lg font-semibold text-red-600 dark:text-red-400 mb-4">Danger Zone</h2>
+                <h2 className="text-lg font-semibold text-red-600 dark:text-red-400 mb-4">Delete Account</h2>
                 <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800">
                     <div className="flex flex-col sm:flex-row md:items-center justify-between">
                         <div>
