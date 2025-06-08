@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { FiUser, FiPhone, FiMapPin, FiCreditCard, FiTruck, FiShoppingBag, FiArrowLeft, FiCheck, FiDollarSign } from 'react-icons/fi';
+import { FiUser, FiPhone, FiMapPin, FiCreditCard, FiTruck, FiShoppingBag, FiArrowLeft, FiCheck, FiDollarSign, FiShoppingCart, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import { useOrder } from '../../hooks/useOrder';
+import { useCart } from '../../hooks/useCart';
 import { useNavigate } from 'react-router-dom';
 import PaymentForm from './payment/PaymentForm';
 
@@ -15,6 +16,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const CheckoutPage = () => {
     const { createOrderFromCart, isLoading } = useOrder();
+    const { cart, getCart } = useCart();
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
@@ -34,17 +36,23 @@ const CheckoutPage = () => {
     const [currentOrder, setCurrentOrder] = useState(null);
     const [clientSecret, setClientSecret] = useState(null);
     const [showPayment, setShowPayment] = useState(false);
+    const [showCartItems, setShowCartItems] = useState(false);
 
     // Debug effect to track state changes
     useEffect(() => {
-        console.log('State updated:', { 
-            showPayment, 
-            hasCurrentOrder: !!currentOrder, 
+        console.log('State updated:', {
+            showPayment,
+            hasCurrentOrder: !!currentOrder,
             hasClientSecret: !!clientSecret,
             currentOrderId: currentOrder?._id,
             clientSecretPreview: clientSecret ? clientSecret.substring(0, 20) + '...' : null
         });
     }, [showPayment, currentOrder, clientSecret]);
+
+    // Load cart data on component mount
+    useEffect(() => {
+        getCart();
+    }, [getCart]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -126,23 +134,23 @@ const CheckoutPage = () => {
             console.log('Creating order with data:', orderData);
             const result = await createOrderFromCart(orderData);
             console.log('Order creation result:', result); // Debug log
-            
+
             if (paymentMethod === 'stripe') {
                 // For Stripe orders, show payment form
                 const orderData = result.order.order;
                 const clientSecretValue = result.order.clientSecret;
-                
+
                 console.log('Setting up Stripe payment:', {
                     order: orderData,
                     clientSecret: clientSecretValue,
                     hasOrder: !!orderData,
                     hasClientSecret: !!clientSecretValue
                 }); // Debug log
-                
+
                 // Update all state at once to avoid timing issues
                 setCurrentOrder(orderData);
                 setClientSecret(clientSecretValue);
-                
+
                 // Use setTimeout to ensure state is updated before showing payment
                 setTimeout(() => {
                     setShowPayment(true);
@@ -151,7 +159,7 @@ const CheckoutPage = () => {
                 // For COD orders, navigate directly to order confirmation
                 navigate(`/order-success/${result.order.order._id}`);
             }
-            
+
         } catch (error) {
             console.error('Failed to place order:', error);
         }
@@ -178,6 +186,9 @@ const CheckoutPage = () => {
     const handleCancel = () => {
         navigate('/cart');
     };
+
+    // Calculate order summary
+    const subtotal = cart?.totalAmount || 0;
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -244,7 +255,7 @@ const CheckoutPage = () => {
         >
             {showPayment && currentOrder && clientSecret ? (
                 // Show Stripe Payment Form using CheckoutProvider
-                
+
                 <Elements stripe={stripePromise} options={{ clientSecret }}>
                     {/* Render Payment Form */}
                     <PaymentForm
@@ -282,6 +293,107 @@ const CheckoutPage = () => {
                         </div>
                     </motion.div>
 
+                    {/* Cart Items Summary */}
+                    <motion.div
+                        variants={itemVariants}
+                        className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+                    >
+                        {/* Cart Summary Header */}
+                        <div
+                            className="p-4 md:p-6 cursor-pointer"
+                            onClick={() => setShowCartItems(!showCartItems)}
+                        >
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                    <FiShoppingCart className="h-5 w-5 text-primary" />
+                                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                        Order Summary
+                                    </h2>
+                                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                                        ({cart?.totalItems || 0} items)
+                                    </span>
+                                </div>
+                                <div className="flex items-center space-x-4">
+                                    <span className="text-lg font-bold text-primary">
+                                        Rs. {subtotal.toFixed(2)}
+                                    </span>
+                                    {showCartItems ?
+                                        <FiChevronUp className="h-5 w-5 text-gray-400" /> :
+                                        <FiChevronDown className="h-5 w-5 text-gray-400" />
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Expandable Cart Items */}
+                        {showCartItems && (
+                            <div className="border-t border-gray-200 dark:border-gray-700">
+                                {/* Cart Items List */}
+                                <div className="p-4 md:p-6 space-y-4">
+                                    {cart?.items?.map((item) => {
+                                        const price = item.product.salePrice || item.product.price || 0;
+                                        const imageSource = item.selectedVariant?.variantImage ||
+                                            item.product.productImage ||
+                                            (item.product.productImages && item.product.productImages.length > 0 ? item.product.productImages[0] : null) ||
+                                            '/placeholder-product.jpg';
+
+                                        return (
+                                            <div key={`${item.product._id}-${item.selectedVariant?.color || 'default'}`} className="flex items-center space-x-4">
+                                                {/* Product Image */}
+                                                <div className="flex-shrink-0">
+                                                    <img
+                                                        src={imageSource}
+                                                        alt={item.product.name}
+                                                        className="w-16 h-16 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                                                        onError={(e) => {
+                                                            e.target.src = '/placeholder-product.jpg';
+                                                        }}
+                                                    />
+                                                </div>
+
+                                                {/* Product Details */}
+                                                <div className="flex-1 min-w-0">
+                                                    <h3 className="text-sm font-medium text-gray-900 dark:text-white line-clamp-2">
+                                                        {item.product.name}
+                                                    </h3>
+                                                    {item.selectedVariant?.color && (
+                                                        <div className="flex items-center gap-2 mt-1">
+                                                            <div
+                                                                className="w-3 h-3 rounded-full border border-gray-300"
+                                                                style={{ backgroundColor: item.selectedVariant.color.toLowerCase() }}
+                                                            ></div>
+                                                            <span className="text-xs text-gray-500 capitalize">
+                                                                {item.selectedVariant.color}
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                    <div className="flex items-center justify-between mt-1">
+                                                        <span className="text-xs text-gray-500">
+                                                            Qty: {item.quantity}
+                                                        </span>
+                                                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                                            Rs. {(price * item.quantity).toFixed(2)}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Price Breakdown */}
+                                <div className="border-t border-gray-200 dark:border-gray-700 p-4 md:p-6 space-y-3">
+                                    <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
+                                        <div className="flex justify-between text-lg font-bold">
+                                            <span className="text-gray-900 dark:text-white">Total</span>
+                                            <span className="text-primary">Rs. {subtotal.toFixed(2)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </motion.div>
+
                     {/* Main Content Grid */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Left Side - Shipping Address Form */}
@@ -296,7 +408,7 @@ const CheckoutPage = () => {
                                         <FiMapPin className="h-5 w-5 text-primary" />
                                         Shipping Address
                                     </h2>
-                                    
+
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <Input
                                             name="firstName"
@@ -431,16 +543,15 @@ const CheckoutPage = () => {
                                     <FiTruck className="h-5 w-5 text-primary" />
                                     Shipping Method
                                 </h2>
-                                
+
                                 <div className="space-y-3">
                                     {shippingMethods.map((method) => (
                                         <div
                                             key={method.id}
-                                            className={`relative flex flex-col p-3 border rounded-lg cursor-pointer transition-all ${
-                                                shippingMethod === method.id
-                                                    ? 'border-primary bg-primary/5 dark:bg-primary/10'
-                                                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                                            }`}
+                                            className={`relative flex flex-col p-3 border rounded-lg cursor-pointer transition-all ${shippingMethod === method.id
+                                                ? 'border-primary bg-primary/5 dark:bg-primary/10'
+                                                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                                                }`}
                                             onClick={() => handleShippingMethodChange(method.id)}
                                         >
                                             <div className="flex items-center justify-between">
@@ -483,16 +594,15 @@ const CheckoutPage = () => {
                                     <FiCreditCard className="h-5 w-5 text-primary" />
                                     Payment Method
                                 </h2>
-                                
+
                                 <div className="space-y-3">
                                     {paymentMethods.map((method) => (
                                         <div
                                             key={method.id}
-                                            className={`relative flex flex-col p-3 border rounded-lg cursor-pointer transition-all ${
-                                                paymentMethod === method.id
-                                                    ? 'border-primary bg-primary/5 dark:bg-primary/10'
-                                                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                                            }`}
+                                            className={`relative flex flex-col p-3 border rounded-lg cursor-pointer transition-all ${paymentMethod === method.id
+                                                ? 'border-primary bg-primary/5 dark:bg-primary/10'
+                                                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                                                }`}
                                             onClick={() => handlePaymentMethodChange(method.id)}
                                         >
                                             <div className="flex items-center justify-between">

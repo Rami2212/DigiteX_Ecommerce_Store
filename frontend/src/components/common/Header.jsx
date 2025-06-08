@@ -68,7 +68,7 @@ const AccountDropdown = ({ isAuthenticated, user, logout }) => {
               </div>
 
               <Link
-                to="/user/profile"
+                to="/user/my-profile"
                 className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 onClick={() => setIsOpen(false)}
               >
@@ -77,7 +77,7 @@ const AccountDropdown = ({ isAuthenticated, user, logout }) => {
               </Link>
 
               <Link
-                to="/user/orders"
+                to="/user/my-orders"
                 className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 onClick={() => setIsOpen(false)}
               >
@@ -95,7 +95,7 @@ const AccountDropdown = ({ isAuthenticated, user, logout }) => {
               </Link>
 
               <Link
-                to="/user/settings"
+                to="/user/edit-profile"
                 className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 onClick={() => setIsOpen(false)}
               >
