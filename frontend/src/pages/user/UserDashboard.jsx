@@ -3,17 +3,22 @@ import { Link } from 'react-router-dom';
 import {
   HiOutlineShoppingBag,
   HiOutlineHeart,
-  HiOutlineCreditCard,
-  HiOutlineLocationMarker,
   HiOutlineEye,
-  HiOutlineTruck,
   HiOutlineCheckCircle,
-  HiOutlineClipboardList
+  HiOutlineClipboardList,
+  HiOutlineClock,
+  HiOutlineUser,
+  HiOutlineChartBar
 } from 'react-icons/hi';
 import { useAuth } from '../../hooks/useAuth';
+import { useOrder } from '../../hooks/useOrder';
+import { useWishlist } from '../../hooks/useWishlist';
 
 const UserDashboard = () => {
   const { user, isAuthenticated } = useAuth();
+  const { userOrders, getUserOrders, userTotalOrders } = useOrder();
+  const { wishlist, itemCount, getWishlist, updateItemCount } = useWishlist();
+
   const [stats, setStats] = useState({
     totalOrders: 0,
     pendingOrders: 0,
@@ -22,51 +27,72 @@ const UserDashboard = () => {
     totalSpent: 0
   });
 
-  // Sample data - replace with actual API calls
   useEffect(() => {
-    // Simulate API call
-    setStats({
-      totalOrders: 12,
-      pendingOrders: 2,
-      deliveredOrders: 8,
-      wishlistItems: 5,
-      totalSpent: 2450.00
-    });
-  }, []);
-
-  const recentOrders = [
-    {
-      id: 'ORD-001',
-      date: '2024-01-15',
-      status: 'Delivered',
-      total: 299.99,
-      items: 2,
-      statusColor: 'text-green-600 bg-green-100'
-    },
-    {
-      id: 'ORD-002',
-      date: '2024-01-10',
-      status: 'In Transit',
-      total: 149.99,
-      items: 1,
-      statusColor: 'text-blue-600 bg-blue-100'
-    },
-    {
-      id: 'ORD-003',
-      date: '2024-01-05',
-      status: 'Processing',
-      total: 89.99,
-      items: 1,
-      statusColor: 'text-yellow-600 bg-yellow-100'
+    if (isAuthenticated) {
+      getUserOrders(1, 10);
+      getWishlist();
+      updateItemCount();
     }
-  ];
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (userOrders && userOrders.length > 0) {
+      const pendingCount = userOrders.filter(order => 
+        ['pending', 'processing', 'shipped'].includes(order.status)
+      ).length;
+      
+      const deliveredCount = userOrders.filter(order => 
+        order.status === 'delivered'
+      ).length;
+
+      const totalSpent = userOrders.reduce((sum, order) => 
+        sum + (order.totalAmount || 0), 0
+      );
+
+      setStats(prev => ({
+        ...prev,
+        totalOrders: userTotalOrders || userOrders.length,
+        pendingOrders: pendingCount,
+        deliveredOrders: deliveredCount,
+        totalSpent: totalSpent,
+        wishlistItems: itemCount || wishlist?.totalItems || 0
+      }));
+    }
+  }, [userOrders, userTotalOrders, itemCount, wishlist]);
+
+  const getStatusColor = (status) => {
+    const colors = {
+      pending: 'text-yellow-600 bg-yellow-100',
+      processing: 'text-blue-600 bg-blue-100',
+      shipped: 'text-purple-600 bg-purple-100',
+      delivered: 'text-green-600 bg-green-100',
+      cancelled: 'text-red-600 bg-red-100',
+    };
+    return colors[status] || 'text-gray-600 bg-gray-100';
+  };
+
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  const recentOrders = userOrders?.slice(0, 3) || [];
 
   const quickActions = [
     {
+      name: 'user/my-Profile',
+      icon: HiOutlineUser,
+      path: 'Profile',
+      color: 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+    },
+    {
       name: 'View Orders',
       icon: HiOutlineShoppingBag,
-      path: '/user/orders',
-      color: 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+      path: '/user/my-orders',
+      color: 'bg-green-50 text-green-600 hover:bg-green-100'
     },
     {
       name: 'Wishlist',
@@ -75,14 +101,8 @@ const UserDashboard = () => {
       color: 'bg-red-50 text-red-600 hover:bg-red-100'
     },
     {
-      name: 'Addresses',
-      icon: HiOutlineLocationMarker,
-      path: '/user/addresses',
-      color: 'bg-green-50 text-green-600 hover:bg-green-100'
-    },
-    {
-      name: 'Payment Methods',
-      icon: HiOutlineCreditCard,
+      name: 'Stats',
+      icon: HiOutlineChartBar,
       path: '/user/payment-methods',
       color: 'bg-purple-50 text-purple-600 hover:bg-purple-100'
     }
@@ -126,7 +146,7 @@ const UserDashboard = () => {
           color="text-blue-600"
         />
         <StatCard
-          icon={HiOutlineTruck}
+          icon={HiOutlineClock}
           title="Pending Orders"
           value={stats.pendingOrders}
           subtitle="In progress"
@@ -174,39 +194,56 @@ const UserDashboard = () => {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Orders</h2>
             <Link 
-              to="/user/orders" 
+              to="/user/my-orders" 
               className="text-primary hover:text-primary-dark text-sm font-medium"
             >
               View All
             </Link>
           </div>
           <div className="space-y-4">
-            {recentOrders.map((order) => (
-              <div key={order.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-medium text-gray-900 dark:text-white">{order.id}</h3>
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${order.statusColor}`}>
-                      {order.status}
-                    </span>
+            {recentOrders.length > 0 ? (
+              recentOrders.map((order) => (
+                <div key={order._id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-medium text-gray-900 dark:text-white">
+                        #{order.orderNumber || order._id.slice(-6)}
+                      </h3>
+                      <span className={`mt-7 mr-4 px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(order.status)}`}>
+                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {order.items?.length || 0} item{(order.items?.length || 0) !== 1 ? 's' : ''} • {formatDate(order.createdAt)}
+                    </p>
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {order.items} item{order.items > 1 ? 's' : ''} • {order.date}
-                  </p>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <div className="text-right">
-                    <p className="font-semibold text-gray-900 dark:text-white">${order.total}</p>
+                  <div className="flex items-center space-x-4">
+                    <div className="text-right">
+                      <p className="font-semibold text-gray-900 dark:text-white">
+                        ${order.totalAmount?.toFixed(2) || '0.00'}
+                      </p>
+                    </div>
+                    <Link 
+                      to={`/user/order/${order._id}`}
+                      className="p-2 text-gray-400 hover:text-primary transition-colors"
+                    >
+                      <HiOutlineEye className="h-5 w-5" />
+                    </Link>
                   </div>
-                  <Link 
-                    to={`/user/orders/${order.id}`}
-                    className="p-2 text-gray-400 hover:text-primary transition-colors"
-                  >
-                    <HiOutlineEye className="h-5 w-5" />
-                  </Link>
                 </div>
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <HiOutlineShoppingBag className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">No orders yet</p>
+                <Link 
+                  to="/products" 
+                  className="text-primary hover:text-primary-dark text-sm font-medium mt-2 inline-block"
+                >
+                  Start Shopping
+                </Link>
               </div>
-            ))}
+            )}
           </div>
         </div>
 
@@ -216,11 +253,15 @@ const UserDashboard = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600 dark:text-gray-400">Total Spent</span>
-              <span className="font-semibold text-gray-900 dark:text-white">${stats.totalSpent.toFixed(2)}</span>
+              <span className="font-semibold text-gray-900 dark:text-white">
+                ${stats.totalSpent.toFixed(2)}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600 dark:text-gray-400">Member Since</span>
-              <span className="font-semibold text-gray-900 dark:text-white">Jan 2024</span>
+              <span className="font-semibold text-gray-900 dark:text-white">
+                {user?.createdAt ? formatDate(user.createdAt) : 'N/A'}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600 dark:text-gray-400">Account Status</span>
@@ -228,9 +269,19 @@ const UserDashboard = () => {
                 Active
               </span>
             </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600 dark:text-gray-400">Email Verified</span>
+              <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                user?.isEmailVerified 
+                  ? 'text-green-600 bg-green-100' 
+                  : 'text-yellow-600 bg-yellow-100'
+              }`}>
+                {user?.isEmailVerified ? 'Verified' : 'Pending'}
+              </span>
+            </div>
             <div className="pt-4 border-t border-gray-200 dark:border-gray-600">
               <Link 
-                to="/user/profile" 
+                to="/user/my-profile" 
                 className="flex items-center text-primary hover:text-primary-dark text-sm font-medium"
               >
                 <HiOutlineClipboardList className="h-4 w-4 mr-2" />

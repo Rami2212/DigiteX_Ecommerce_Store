@@ -22,6 +22,8 @@ import OrdersPage from '../pages/admin/orders/Orders';
 import SingleOrderPage from '../pages/admin/orders/Order';
 import ContactsPage from '../pages/admin/contact/Contacts';
 import ContactDetailPage from '../pages/admin/contact/ContactDetail';
+import AdminProfile from '../pages/admin/profile/MyProfile';
+import AdminEditProfile from '../pages/admin/profile/EditProfile';
 
 const AdminRoutes = () => {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
@@ -65,6 +67,10 @@ const AdminRoutes = () => {
       >
         {/* Default admin dashboard */}
         <Route index element={<AdminDashboard />} />
+
+        {/* Profile */}
+        <Route path="my-profile" element={<AdminProfile />} />
+        <Route path="edit-profile/" element={<AdminEditProfile />} />
         
         {/* Categories */}
         <Route path="categories" element={<CategoriesPage />} />

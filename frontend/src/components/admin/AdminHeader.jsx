@@ -144,14 +144,14 @@ const AdminHeader = ({ onToggleSidebar, sidebarOpen }) => {
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
                 <div className="py-1">
                   <a
-                    href="#"
+                    href="/admin/my-profile"
                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
                     <FiUser className="mr-3 h-4 w-4" />
-                    Profile
+                    My Profile
                   </a>
                   <a
-                    href="#"
+                    href="/admin/edit-profile"
                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
                     <FiSettings className="mr-3 h-4 w-4" />

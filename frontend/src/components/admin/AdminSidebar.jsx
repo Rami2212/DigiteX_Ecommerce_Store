@@ -250,7 +250,7 @@ const AdminSidebar = ({ isOpen, onClose }) => {
         {/* Footer */}
         <div className="absolute bottom-0 left-0 right-0 p-4 bg-slate-800 border-t border-slate-700">
           <div className="text-center text-xs text-slate-400">
-            <p>© 2025 Your App</p>
+            <p>© 2025 DigiteX</p>
             <p>Admin Panel v1.0</p>
           </div>
         </div>

@@ -10,7 +10,8 @@ import {
   HiOutlineBell,
   HiOutlineQuestionMarkCircle,
   HiOutlineX,
-  HiOutlineViewGrid
+  HiOutlineViewGrid,
+  HiOutlineChartBar
 } from 'react-icons/hi';
 
 const UserSidebar = ({ isOpen, onClose }) => {
@@ -38,30 +39,15 @@ const UserSidebar = ({ isOpen, onClose }) => {
       icon: HiOutlineHeart,
     },
     {
-      name: 'Addresses',
-      path: '/user/addresses',
-      icon: HiOutlineLocationMarker,
-    },
-    {
-      name: 'Payment Methods',
-      path: '/user/payment-methods',
-      icon: HiOutlineCreditCard,
+      name: 'Statistics',
+      path: '/user/stats',
+      icon: HiOutlineChartBar,
     },
     {
       name: 'Notifications',
       path: '/user/notifications',
       icon: HiOutlineBell,
-    },
-    {
-      name: 'Settings',
-      path: '/user/settings',
-      icon: HiOutlineCog,
-    },
-    {
-      name: 'Help & Support',
-      path: '/user/support',
-      icon: HiOutlineQuestionMarkCircle,
-    },
+    }
   ];
 
   const isActive = (path) => {
