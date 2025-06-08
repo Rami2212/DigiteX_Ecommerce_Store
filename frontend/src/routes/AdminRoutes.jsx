@@ -20,6 +20,8 @@ import EditProductPage from '../pages/admin/products/EditProduct';
 import ProductsPage from '../pages/admin/products/Products';
 import OrdersPage from '../pages/admin/orders/Orders';
 import SingleOrderPage from '../pages/admin/orders/Order';
+import ContactsPage from '../pages/admin/contact/Contacts';
+import ContactDetailPage from '../pages/admin/contact/ContactDetail';
 
 const AdminRoutes = () => {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
@@ -87,6 +89,10 @@ const AdminRoutes = () => {
         {/* Orders */}
         <Route path="orders" element={<OrdersPage />} />
         <Route path="order/:orderId" element={<SingleOrderPage />} />
+
+        {/* Contacts */}
+        <Route path="contacts" element={<ContactsPage />} />
+        <Route path="contact-detail/:contactId" element={<ContactDetailPage />} />
 
         {/* Catch all - redirect to dashboard */}
         <Route path="*" element={<Navigate to="/admin" replace />} />

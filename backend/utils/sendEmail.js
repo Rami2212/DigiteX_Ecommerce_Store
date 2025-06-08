@@ -290,3 +290,40 @@ exports.sendContactNotificationEmail = async (contact) => {
         `
     });
 };
+
+// utils/sendEmail.js - Add this new template
+exports.sendContactReplyEmail = async (email, customerName, originalSubject, replyMessage) => {
+    await transporter.sendMail({
+        from: `"DigiteX Support" <${process.env.SMTP_EMAIL}>`,
+        to: email,
+        subject: `Re: ${originalSubject}`,
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #eaeaea; border-radius: 10px; padding: 30px; background-color: #ffffff;">
+                <div style="text-align: center;">
+                    <h2 style="color: #1E90FF; margin-bottom: 10px;">Response from DigiteX Support 💬</h2>
+                    <p style="font-size: 16px; color: #555;">Hello ${customerName}, here's our response to your inquiry.</p>
+                </div>
+                
+                <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <p><strong>Regarding:</strong> ${originalSubject}</p>
+                </div>
+
+                <div style="background-color: #e8f4fd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #1E90FF;">
+                    <h3 style="color: #1E90FF; margin-top: 0;">Our Response:</h3>
+                    <div style="white-space: pre-wrap; color: #333; line-height: 1.6;">
+                        ${replyMessage}
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <p style="font-size: 14px; color: #666;">Need further assistance? Reply to this email or contact us directly.</p>
+                    <p style="font-size: 14px; color: #888;">- The DigiteX Support Team</p>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <img src="https://i.imgur.com/EVqJ2Aj.png" alt="DigiteX Logo" style="width: 100px; opacity: 0.6;" />
+                </div>
+            </div>
+        `
+    });
+};

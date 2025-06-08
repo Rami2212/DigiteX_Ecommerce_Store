@@ -1,5 +1,5 @@
 const contactRepo = require('../repositories/contact.repository');
-const { sendContactConfirmationEmail, sendContactNotificationEmail } = require('../utils/sendEmail');
+const { sendContactConfirmationEmail, sendContactNotificationEmail, sendContactReplyEmail } = require('../utils/sendEmail');
 
 exports.createContact = async (contactData, ipAddress) => {
     try {
@@ -42,6 +42,26 @@ exports.updateContactStatus = async (contactId, updateData) => {
     const contact = await contactRepo.getContactById(contactId);
     if (!contact) {
         throw new Error('Contact not found');
+    }
+
+    // Send reply email if reply data is provided
+    if (updateData.replyMessage) {
+        try {
+            await sendContactReplyEmail(
+                contact.email,
+                contact.name,
+                contact.subject,
+                updateData.replyMessage
+            );
+
+            // Add reply to admin notes
+            const replyNote = `\n--- Reply sent on ${new Date().toLocaleString()} ---\n${updateData.replyMessage}`;
+            updateData.adminNotes = (updateData.adminNotes || contact.adminNotes || '') + replyNote;
+            updateData.respondedAt = new Date();
+        } catch (emailError) {
+            console.error('Failed to send reply email:', emailError);
+            throw new Error('Contact updated but failed to send reply email');
+        }
     }
 
     return await contactRepo.updateContact(contactId, updateData);

@@ -12,6 +12,7 @@ exports.updateContactStatusDto = Joi.object({
     status: Joi.string().valid('pending', 'in-progress', 'resolved', 'closed').required(),
     priority: Joi.string().valid('low', 'medium', 'high', 'urgent').optional(),
     adminNotes: Joi.string().trim().max(500).optional(),
+    replyMessage: Joi.string().trim().max(500).optional(),
 });
 
 exports.getContactsDto = Joi.object({

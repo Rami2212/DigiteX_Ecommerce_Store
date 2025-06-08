@@ -71,6 +71,14 @@ const AdminSidebar = ({ isOpen, onClose }) => {
       ]
     },
     {
+      title: 'Contact Form',
+      icon: FiMail,
+      path: '/admin/contacts',
+      children: [
+        { title: 'Responses', path: '/admin/contacts' },
+      ]
+    },
+    {
       title: 'Analytics',
       icon: FiSettings,
       path: '/admin/analytics',
