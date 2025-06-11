@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { FiSave, FiX, FiPlus, FiTrash2 } from 'react-icons/fi';
 import { useProduct } from '../../../hooks/useProduct';
 import { useCategory } from '../../../hooks/useCategory';
+import { useAddon } from '../../../hooks/useAddon';
 import Button from '../../../components/common/Button';
 import Input from '../../../components/common/Input';
 import Textarea from '../../../components/common/Textarea';
@@ -13,6 +14,7 @@ const EditProductPage = () => {
   const { id } = useParams();
   const { getProductById, updateProduct, isLoading } = useProduct();
   const { categories, getCategories } = useCategory();
+  const { addons, getAddons } = useAddon();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -21,6 +23,7 @@ const EditProductPage = () => {
     price: '',
     salePrice: '',
     category: '',
+    addons: [],
     productImage: null,
     productImages: [],
     variants: [{ color: '', variantImage: null }]
@@ -50,6 +53,9 @@ const EditProductPage = () => {
         price: productData.price ? productData.price.toString() : '',
         salePrice: productData.salePrice ? productData.salePrice.toString() : '',
         category: productData.category?._id || productData.category || '',
+        addons: productData.addons ? productData.addons.map(addon => 
+          typeof addon === 'object' ? addon._id : addon
+        ) : [],
         productImage: productData.productImage || null,
         productImages: productData.productImages || [],
         variants: productData.variants && productData.variants.length > 0
@@ -87,12 +93,15 @@ const EditProductPage = () => {
     fetchProduct();
   }, [fetchProduct]);
 
-  // Fetch categories only once
+  // Fetch categories and addons only once
   useEffect(() => {
     if (categories.length === 0) {
       getCategories();
     }
-  }, [getCategories, categories.length]);
+    if (addons.length === 0) {
+      getAddons();
+    }
+  }, [getCategories, getAddons, categories.length, addons.length]);
 
   const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -106,6 +115,15 @@ const EditProductPage = () => {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
   }, [errors]);
+
+  const handleAddonToggle = useCallback((addonId) => {
+    setFormData(prev => ({
+      ...prev,
+      addons: prev.addons.includes(addonId)
+        ? prev.addons.filter(id => id !== addonId)
+        : [...prev.addons, addonId]
+    }));
+  }, []);
 
   const handleVariantChange = useCallback((index, field, value) => {
     setFormData(prev => {
@@ -260,6 +278,13 @@ const EditProductPage = () => {
         submitData.append('salePrice', formData.salePrice);
       }
       submitData.append('category', formData.category);
+      
+      // Append addons
+      if (formData.addons.length > 0) {
+        formData.addons.forEach(addonId => {
+          submitData.append('addons[]', addonId);
+        });
+      }
       
       // Handle product image
       if (formData.productImage instanceof File) {
@@ -430,6 +455,65 @@ const EditProductPage = () => {
                 </option>
               ))}
             </Select>
+          </div>
+
+          {/* Addons Section */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Product Addons (Optional)
+            </label>
+            
+            {addons && addons.length > 0 ? (
+              <div className="space-y-2">
+                {addons.map(addon => (
+                  <div
+                    key={addon._id}
+                    className="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50"
+                  >
+                    <input
+                      type="checkbox"
+                      id={`addon-${addon._id}`}
+                      checked={formData.addons.includes(addon._id)}
+                      onChange={() => handleAddonToggle(addon._id)}
+                      disabled={isLoading}
+                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                    />
+                    <label
+                      htmlFor={`addon-${addon._id}`}
+                      className="ml-3 flex-1 cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">
+                            {addon.name}
+                          </p>
+                          {addon.description && (
+                            <p className="text-sm text-gray-500">
+                              {addon.description}
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-sm font-medium text-gray-900">
+                          ${addon.price}
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-sm text-gray-500 italic">
+                No addons available. You can create addons from the addons management page.
+              </div>
+            )}
+            
+            {formData.addons.length > 0 && (
+              <div className="mt-3 p-3 bg-blue-50 rounded-md">
+                <p className="text-sm text-blue-800">
+                  <strong>{formData.addons.length}</strong> addon{formData.addons.length > 1 ? 's' : ''} selected
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Main Product Image */}

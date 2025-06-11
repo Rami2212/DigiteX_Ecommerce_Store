@@ -26,7 +26,8 @@ exports.addProductDto = Joi.object({
         Joi.string(), // Allow JSON string
         Joi.object().pattern(Joi.string(), Joi.any()) // Allow parsed object
     ).default([]),
-    category: Joi.string().required()
+    category: Joi.string().required(),
+    addons: Joi.array().items(Joi.string()).optional(),
 });
 
 exports.updateProductDto = Joi.object({
@@ -50,5 +51,6 @@ exports.updateProductDto = Joi.object({
         Joi.string(),
         Joi.object().pattern(Joi.string(), Joi.any())
     ).optional(),
-    category: Joi.string().optional()
+    category: Joi.string().optional(),
+    addons: Joi.array().items(Joi.string()).optional(),
 });

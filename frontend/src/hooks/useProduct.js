@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import {
@@ -44,7 +44,13 @@ export const useProduct = () => {
     categoryTotalProducts,
   } = useSelector((state) => state.product);
 
-  const getProducts = async (page = 1, limit = 20) => {
+  // Refs to track ongoing requests and prevent duplicates
+  const productRequestsRef = useRef(new Set());
+  const categoryRequestsRef = useRef(new Set());
+  const lastProductIdRef = useRef(null);
+  const lastCategoryIdRef = useRef(null);
+
+  const getProducts = useCallback(async (page = 1, limit = 20) => {
     try {
       dispatch(fetchProductsStart());
       const data = await productAPI.getProducts(page, limit);
@@ -54,35 +60,96 @@ export const useProduct = () => {
       dispatch(fetchProductsFailure(errorMsg));
       toast.error(errorMsg);
     }
-  };
+  }, [dispatch]);
 
-  const getProductById = async (id) => {
+  const getProductById = useCallback(async (id) => {
+    // Return early if same product is already selected and loaded
+    if (selectedProduct && selectedProduct._id === id && !isLoading) {
+      return selectedProduct;
+    }
+
+    // Return early if same product ID was just requested
+    if (lastProductIdRef.current === id) {
+      return selectedProduct;
+    }
+
+    // Check if request is already in progress
+    if (productRequestsRef.current.has(id)) {
+      return new Promise((resolve) => {
+        const checkLoaded = () => {
+          if (selectedProduct && selectedProduct._id === id) {
+            resolve(selectedProduct);
+          } else {
+            setTimeout(checkLoaded, 100);
+          }
+        };
+        checkLoaded();
+      });
+    }
+
     try {
+      // Mark request as in progress
+      productRequestsRef.current.add(id);
+      lastProductIdRef.current = id;
+      
       dispatch(fetchProductByIdStart());
       const data = await productAPI.getProductsById(id);
       dispatch(fetchProductByIdSuccess(data));
+      
       return data;
     } catch (err) {
       const errorMsg = err.response?.data?.message || 'Failed to fetch product';
       dispatch(fetchProductByIdFailure(errorMsg));
       toast.error(errorMsg);
       throw err;
+    } finally {
+      // Remove request from progress tracking
+      productRequestsRef.current.delete(id);
     }
-  };
+  }, [dispatch, selectedProduct, isLoading]);
 
-  const getProductsByCategory = async (categoryId, page = 1, limit = 20) => {
+  const getProductsByCategory = useCallback(async (categoryId, page = 1, limit = 20) => {
+    const requestKey = `${categoryId}-${page}-${limit}`;
+    
+    // Return early if same category request was just made
+    if (lastCategoryIdRef.current === requestKey) {
+      return productsByCategory;
+    }
+
+    // Check if request is already in progress
+    if (categoryRequestsRef.current.has(requestKey)) {
+      return new Promise((resolve) => {
+        const checkLoaded = () => {
+          if (productsByCategory && productsByCategory.length > 0) {
+            resolve(productsByCategory);
+          } else {
+            setTimeout(checkLoaded, 100);
+          }
+        };
+        checkLoaded();
+      });
+    }
+
     try {
+      // Mark request as in progress
+      categoryRequestsRef.current.add(requestKey);
+      lastCategoryIdRef.current = requestKey;
+      
       dispatch(fetchProductsByCategoryStart());
       const data = await productAPI.getProductsByCategory(categoryId, page, limit);
       dispatch(fetchProductsByCategorySuccess(data));
+      
       return data;
     } catch (err) {
       const errorMsg = err.response?.data?.message || 'Failed to fetch products by category';
       dispatch(fetchProductsByCategoryFailure(errorMsg));
       toast.error(errorMsg);
       throw err;
+    } finally {
+      // Remove request from progress tracking
+      categoryRequestsRef.current.delete(requestKey);
     }
-  };
+  }, [dispatch, productsByCategory]);
 
   const findProductById = useCallback((id) => {
     // Check in main products first
@@ -101,7 +168,7 @@ export const useProduct = () => {
     return null;
   }, [products, productsByCategory, selectedProduct]);
 
-  const addProduct = async (formData) => {
+  const addProduct = useCallback(async (formData) => {
     try {
       dispatch(addProductStart());
       const data = await productAPI.addProduct(formData);
@@ -114,9 +181,9 @@ export const useProduct = () => {
       toast.error(errorMsg);
       throw err;
     }
-  };
+  }, [dispatch]);
 
-  const updateProduct = async (id, formData) => {
+  const updateProduct = useCallback(async (id, formData) => {
     try {
       dispatch(updateProductStart());
       const data = await productAPI.updateProducts(id, formData);
@@ -129,9 +196,9 @@ export const useProduct = () => {
       toast.error(errorMsg);
       throw err;
     }
-  };
+  }, [dispatch]);
 
-  const deleteProduct = async (id) => {
+  const deleteProduct = useCallback(async (id) => {
     try {
       dispatch(deleteProductStart());
       await productAPI.deleteProduct(id);
@@ -143,27 +210,38 @@ export const useProduct = () => {
       toast.error(errorMsg);
       throw err;
     }
-  };
+  }, [dispatch]);
 
-  const clearError = () => {
+  const clearError = useCallback(() => {
     dispatch(clearProductError());
-  };
+  }, [dispatch]);
 
-  const clearLoading = () => {
+  const clearLoading = useCallback(() => {
     dispatch(clearProductLoading());
-  };
+  }, [dispatch]);
 
-  const clearSelected = () => {
+  const clearSelected = useCallback(() => {
     dispatch(clearSelectedProduct());
-  };
+    // Reset tracking refs when clearing
+    lastProductIdRef.current = null;
+    productRequestsRef.current.clear();
+  }, [dispatch]);
 
-  const clearCategoryProducts = () => {
+  const clearCategoryProducts = useCallback(() => {
     dispatch(clearProductsByCategory());
-  };
+    // Reset tracking refs when clearing
+    lastCategoryIdRef.current = null;
+    categoryRequestsRef.current.clear();
+  }, [dispatch]);
 
-  const clearAllProducts = () => {
+  const clearAllProducts = useCallback(() => {
     dispatch(clearProducts());
-  };
+    // Reset all tracking refs when clearing
+    lastProductIdRef.current = null;
+    lastCategoryIdRef.current = null;
+    productRequestsRef.current.clear();
+    categoryRequestsRef.current.clear();
+  }, [dispatch]);
 
   return {
     // State

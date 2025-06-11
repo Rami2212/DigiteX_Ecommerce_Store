@@ -20,12 +20,12 @@ const ProductCard = ({ product }) => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   
-  const [selectedVariant, setSelectedVariant] = useState(
-    product.variants && product.variants.length > 0 ? product.variants[0] : null
-  );
+  // No default variant selection - let user choose
+  const [selectedVariant, setSelectedVariant] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [isHovered, setIsHovered] = useState(false);
   const [isInWishlist, setIsInWishlist] = useState(false);
+  const [inCart, setInCart] = useState(false); // Local cart state
 
   const productSlug = product.name?.toLowerCase().replace(/\s+/g, '-') || '';
   const discountPercentage = product.salePrice && product.price 
@@ -33,11 +33,16 @@ const ProductCard = ({ product }) => {
     : 0;
 
   const finalPrice = product.salePrice || product.price;
-  
-  // Check if the specific variant (or no variant) is in cart
-  const inCart = selectedVariant 
-    ? isItemInCart(product._id, selectedVariant.color)
-    : isItemInCart(product._id, null);
+
+  // Update local cart state whenever cart changes or variant selection changes
+  useEffect(() => {
+    if (product) {
+      const cartStatus = selectedVariant 
+        ? isItemInCart(product._id, selectedVariant.color)
+        : isItemInCart(product._id, null);
+      setInCart(cartStatus);
+    }
+  }, [product, selectedVariant, isItemInCart]);
 
   // Update local wishlist state when component mounts or product changes
   useEffect(() => {
@@ -84,6 +89,9 @@ const ProductCard = ({ product }) => {
       };
       
       await addToCart(cartData);
+      
+      // Immediately update local cart state
+      setInCart(true);
     } catch (error) {
       console.error('Failed to add to cart:', error);
     }
@@ -123,8 +131,13 @@ const ProductCard = ({ product }) => {
   const handleVariantChange = (variant) => {
     setSelectedVariant(variant);
     setQuantity(1); // Reset quantity when variant changes
+    
+    // Update cart status for new variant
+    const cartStatus = isItemInCart(product._id, variant.color);
+    setInCart(cartStatus);
   };
 
+  // Show main product image first, then variant image if selected
   const displayImage = selectedVariant?.variantImage || product.productImage || product.productImages?.[0];
 
   return (
@@ -140,11 +153,16 @@ const ProductCard = ({ product }) => {
       {/* Product Image */}
       <div className="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-700">
         <Link to={`/product/${product._id}/${productSlug}`}>
-          <img
-            src={displayImage}
-            alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          />
+          {displayImage && (
+            <img
+              src={displayImage}
+              alt={product.name}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
+          )}
         </Link>
         
         {/* Badges */}
@@ -275,7 +293,13 @@ const ProductCard = ({ product }) => {
         {/* Variants */}
         {product.variants && product.variants.length > 0 && (
           <div className="space-y-2">
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Colors:</p>
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Colors: {selectedVariant ? (
+                <span className="font-normal">{selectedVariant.color}</span>
+              ) : (
+                <span className="font-normal text-gray-500 dark:text-gray-400">Select a color</span>
+              )}
+            </p>
             <div className="flex gap-2">
               {product.variants.map((variant, index) => (
                 <button

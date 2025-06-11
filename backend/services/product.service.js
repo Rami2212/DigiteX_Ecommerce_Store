@@ -91,9 +91,17 @@ exports.getProducts = async (page = 1, limit = 10) => {
 
 exports.getProductById = async (id) => {
     const product = await productRepo.getProductById(id);
+
     if (!product) {
         throw new Error('Product not found');
     }
+
+    // Increase product view count
+    if (product) {
+        product.views = (product.views || 0) + 1;
+        await productRepo.updateProductById(id, { views: product.views });
+    }
+
     return product;
 };
 
