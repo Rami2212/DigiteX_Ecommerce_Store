@@ -164,7 +164,31 @@ const CategoryCard = ({ category, viewMode }) => {
               <Link to={`/category/${categorySlug}`}>
                 {category.name}
               </Link>
+              {category.subCategories && category.subCategories.length > 0 && (
+                <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
+                  ({category.subCategories.length} subcategories)
+                </span>
+              )}
             </h3>
+            
+            {/* Subcategories List */}
+            {category.subCategories && category.subCategories.length > 0 && (
+              <div className="mb-3">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Subcategories:</p>
+                <div className="flex flex-wrap gap-2">
+                  {category.subCategories.map((subCategory, index) => (
+                    <Link
+                      key={index}
+                      to={`/category/${categorySlug}`}
+                      className="inline-block px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full hover:bg-primary hover:text-white transition-colors"
+                    >
+                      {subCategory}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+            
             <Link
               to={`/category/${categorySlug}`}
               className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors text-sm font-medium"
@@ -194,6 +218,29 @@ const CategoryCard = ({ category, viewMode }) => {
             {category.name}
           </Link>
         </h3>
+        
+        {/* Subcategories in Grid View */}
+        {category.subCategories && category.subCategories.length > 0 && (
+          <div className="mb-3">
+            <div className="flex flex-wrap gap-1 mb-2">
+              {category.subCategories.slice(0, 3).map((subCategory, index) => (
+                <Link
+                  key={index}
+                  to={`/category/${categorySlug}`}
+                  className="inline-block px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded hover:bg-primary hover:text-white transition-colors"
+                >
+                  {subCategory}
+                </Link>
+              ))}
+              {category.subCategories.length > 3 && (
+                <span className="inline-block px-2 py-1 text-gray-500 dark:text-gray-400 text-xs">
+                  +{category.subCategories.length - 3} more
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+        
         <Link
           to={`/category/${categorySlug}`}
           className="block w-full text-center px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors text-sm font-medium"

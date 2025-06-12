@@ -24,6 +24,7 @@ import ContactsPage from '../pages/admin/contact/Contacts';
 import ContactDetailPage from '../pages/admin/contact/ContactDetail';
 import AdminProfile from '../pages/admin/profile/MyProfile';
 import AdminEditProfile from '../pages/admin/profile/EditProfile';
+import AnalysisPage from '../pages/admin/analysis/Analysis';
 
 const AdminRoutes = () => {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
@@ -99,6 +100,9 @@ const AdminRoutes = () => {
         {/* Contacts */}
         <Route path="contacts" element={<ContactsPage />} />
         <Route path="contact-detail/:contactId" element={<ContactDetailPage />} />
+
+        {/* Analytics */}
+        <Route path="analytics" element={<AnalysisPage />} />
 
         {/* Catch all - redirect to dashboard */}
         <Route path="*" element={<Navigate to="/admin" replace />} />
