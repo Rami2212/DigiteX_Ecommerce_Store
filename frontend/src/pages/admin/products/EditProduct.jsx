@@ -24,6 +24,7 @@ const EditProductPage = () => {
     salePrice: '',
     category: '',
     addons: [],
+    stock: 0,
     productImage: null,
     productImages: [],
     variants: [{ color: '', variantImage: null }]
@@ -56,6 +57,7 @@ const EditProductPage = () => {
         addons: productData.addons ? productData.addons.map(addon => 
           typeof addon === 'object' ? addon._id : addon
         ) : [],
+        stock: productData.stock || 0,
         productImage: productData.productImage || null,
         productImages: productData.productImages || [],
         variants: productData.variants && productData.variants.length > 0
@@ -278,13 +280,12 @@ const EditProductPage = () => {
         submitData.append('salePrice', formData.salePrice);
       }
       submitData.append('category', formData.category);
-      
-      // Append addons
-      if (formData.addons.length > 0) {
+            if (formData.addons.length > 0) {
         formData.addons.forEach(addonId => {
           submitData.append('addons[]', addonId);
         });
       }
+      submitData.append('stock', formData.stock);
       
       // Handle product image
       if (formData.productImage instanceof File) {
@@ -403,7 +404,7 @@ const EditProductPage = () => {
                 error={errors.shortDescription}
                 required
                 disabled={isLoading}
-                rows={3}
+                rows={4}
                 maxLength={200}
               />
             </div>
@@ -419,6 +420,17 @@ const EditProductPage = () => {
                 value={formData.salePrice}
                 onChange={handleInputChange}
                 error={errors.salePrice}
+                disabled={isLoading}
+              />
+              <Input
+                name="stock"
+                label="Stock"
+                type="number"
+                placeholder="Enter stock quantity"
+                value={formData.stock}
+                onChange={handleInputChange}
+                error={errors.stock}
+                required
                 disabled={isLoading}
               />
             </div>

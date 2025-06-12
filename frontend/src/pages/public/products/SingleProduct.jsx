@@ -14,7 +14,8 @@ import {
   FiRefreshCw,
   FiX,
   FiChevronRight,
-  FiHome
+  FiHome,
+  FiAlertTriangle
 } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../../../hooks/useCart';
@@ -24,6 +25,7 @@ import { useProduct } from '../../../hooks/useProduct';
 import { useCategory } from '../../../hooks/useCategory';
 import { useAddon } from '../../../hooks/useAddon';
 import Button from '../../../components/common/Button';
+import * as Icons from 'react-icons/fi'; // Import all icons from react-icons/fi
 
 const SingleProductPage = () => {
   const { productId } = useParams();
@@ -85,12 +87,12 @@ const SingleProductPage = () => {
   useEffect(() => {
     if (selectedProduct) {
       const images = [];
-      
+
       // Add main product image first
       if (selectedProduct.productImage) {
         images.push(selectedProduct.productImage);
       }
-      
+
       // Add additional product images (excluding main image to avoid duplicates)
       if (selectedProduct.productImages && selectedProduct.productImages.length > 0) {
         const additionalImages = selectedProduct.productImages.filter(
@@ -98,7 +100,7 @@ const SingleProductPage = () => {
         );
         images.push(...additionalImages);
       }
-      
+
       // Add variant images
       if (selectedProduct.variants && selectedProduct.variants.length > 0) {
         const variantImages = selectedProduct.variants
@@ -107,7 +109,7 @@ const SingleProductPage = () => {
           .filter(img => !images.includes(img)); // Avoid duplicates
         images.push(...variantImages);
       }
-      
+
       setAllImages(images);
     }
   }, [selectedProduct]);
@@ -171,10 +173,15 @@ const SingleProductPage = () => {
 
   // Add a state to track cart operations and force re-evaluation
   const [cartUpdateTrigger, setCartUpdateTrigger] = useState(0);
-  
+
   // Recalculate cart status when cart updates or trigger changes
   const inCart = product ? isItemInCart(product._id, selectedVariant?.color) : false;
   const cartQuantity = product ? getItemQuantity(product._id, selectedVariant?.color) : 0;
+
+  // Stock management
+  const currentStock = selectedVariant ? selectedVariant.stock : product?.stock || 0;
+  const isOutOfStock = currentStock <= 0;
+  const isLowStock = currentStock > 0 && currentStock <= 5;
 
   const displayImages = product?.productImages || (product?.productImage ? [product.productImage] : []);
   const categoryName = getCategoryById(product?.category)?.name || 'Uncategorized';
@@ -211,7 +218,7 @@ const SingleProductPage = () => {
   };
 
   const handleAddToCart = async () => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || isOutOfStock) {
       return;
     }
 
@@ -224,7 +231,7 @@ const SingleProductPage = () => {
 
       await addToCart(cartData);
       setQuantity(1);
-      
+
       // Trigger a re-render to update cart status
       setCartUpdateTrigger(prev => prev + 1);
     } catch (error) {
@@ -241,7 +248,7 @@ const SingleProductPage = () => {
       } else {
         await updateCartItem(product._id, { quantity: newQuantity }, selectedVariant?.color);
       }
-      
+
       // Trigger a re-render to update cart status
       setCartUpdateTrigger(prev => prev + 1);
     } catch (error) {
@@ -273,7 +280,7 @@ const SingleProductPage = () => {
   const handleVariantChange = (variant) => {
     setSelectedVariant(variant);
     setQuantity(1);
-    
+
     // Update selected image index to show variant image if it exists
     if (variant.variantImage) {
       const variantImageIndex = allImages.findIndex(img => img === variant.variantImage);
@@ -284,18 +291,18 @@ const SingleProductPage = () => {
   };
 
   const handleQuantityChange = (newQuantity) => {
-    if (newQuantity >= 1) {
+    if (newQuantity >= 1 && newQuantity <= currentStock) {
       setQuantity(newQuantity);
     }
   };
 
   const handleImageClick = (index) => {
     setSelectedImageIndex(index);
-    
+
     // Check if clicked image is a variant image
     const clickedImage = allImages[index];
     const variantForImage = product?.variants?.find(v => v.variantImage === clickedImage);
-    
+
     if (variantForImage) {
       // If clicked image belongs to a variant, select that variant
       setSelectedVariant(variantForImage);
@@ -372,11 +379,11 @@ const SingleProductPage = () => {
             </button>
             <FiChevronRight className="h-4 w-4" />
             <button
-                  onClick={() => navigate(`/products`)}
-                  className="hover:text-primary transition-colors"
-                >
-                  Products
-                </button>
+              onClick={() => navigate(`/products`)}
+              className="hover:text-primary transition-colors"
+            >
+              Products
+            </button>
             {product.category && (
               <>
                 <FiChevronRight className="h-4 w-4" />
@@ -423,6 +430,14 @@ const SingleProductPage = () => {
                     className="w-full h-full object-cover"
                   />
                 )}
+                {/* Stock badge */}
+                {isOutOfStock && (
+                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <div className="bg-red-500 text-white px-4 py-2 rounded-lg font-medium">
+                      Out of Stock
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -434,8 +449,8 @@ const SingleProductPage = () => {
                     key={index}
                     onClick={() => handleImageClick(index)}
                     className={`flex-shrink-0 w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border-2 transition-colors ${allImages[selectedImageIndex] === image
-                        ? 'border-primary'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-primary'
+                      ? 'border-primary'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-primary'
                       }`}
                   >
                     <img
@@ -474,6 +489,26 @@ const SingleProductPage = () => {
                   <span className="text-sm text-gray-600 dark:text-gray-400">
                     ({product.reviewsCount || 0})
                   </span>
+                </div>
+              )}
+            </div>
+
+            {/* Stock Status */}
+            <div className="flex items-center gap-2">
+              {isOutOfStock ? (
+                <div className="flex items-center gap-2 text-red-600">
+                  <FiAlertTriangle className="h-4 w-4" />
+                  <span className="text-sm font-medium">Out of Stock</span>
+                </div>
+              ) : isLowStock ? (
+                <div className="flex items-center gap-2 text-orange-600">
+                  <FiAlertTriangle className="h-4 w-4" />
+                  <span className="text-sm font-medium">Only {currentStock} left in stock!</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-green-600">
+                  <FiCheck className="h-4 w-4" />
+                  <span className="text-sm font-medium">In Stock ({currentStock} available)</span>
                 </div>
               )}
             </div>
@@ -539,22 +574,32 @@ const SingleProductPage = () => {
                   )}
                 </h3>
                 <div className="flex gap-2">
-                  {product.variants.map((variant, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleVariantChange(variant)}
-                      className={`w-8 h-8 rounded-full border-2 transition-all duration-200 ${selectedVariant?.color === variant.color
-                          ? 'border-primary scale-110 shadow-md'
-                          : 'border-gray-300 dark:border-gray-600 hover:border-primary hover:scale-105'
+                  {product.variants.map((variant, index) => {
+                    const variantOutOfStock = variant.stock <= 0;
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => !variantOutOfStock && handleVariantChange(variant)}
+                        disabled={variantOutOfStock}
+                        className={`relative w-8 h-8 rounded-full border-2 transition-all duration-200 ${
+                          variantOutOfStock 
+                            ? 'border-gray-300 dark:border-gray-600 opacity-50 cursor-not-allowed'
+                            : selectedVariant?.color === variant.color
+                              ? 'border-primary scale-110 shadow-md'
+                              : 'border-gray-300 dark:border-gray-600 hover:border-primary hover:scale-105'
                         }`}
-                      style={{ backgroundColor: variant.color.toLowerCase() }}
-                      title={variant.color}
-                    >
-                      {selectedVariant?.color === variant.color && (
-                        <FiCheck className="h-4 w-4 text-white m-auto" />
-                      )}
-                    </button>
-                  ))}
+                        style={{ backgroundColor: variantOutOfStock ? '#f3f4f6' : variant.color.toLowerCase() }}
+                        title={variantOutOfStock ? `${variant.color} - Out of Stock` : variant.color}
+                      >
+                        {selectedVariant?.color === variant.color && !variantOutOfStock && (
+                          <FiCheck className="h-4 w-4 text-white m-auto" />
+                        )}
+                        {variantOutOfStock && (
+                          <FiX className="h-4 w-4 text-gray-500 m-auto" />
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -562,7 +607,8 @@ const SingleProductPage = () => {
             {/* Addons */}
             {productAddons && productAddons.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white flex items-center gap-2">
+                  <FiPlus className="h-4 w-4 text-primary" />
                   Add-ons:
                 </h3>
                 {addonsLoading ? (
@@ -573,8 +619,8 @@ const SingleProductPage = () => {
                 ) : (
                   <div className="space-y-2">
                     {productAddons.map((addon) => (
-                      <label 
-                        key={addon._id} 
+                      <label
+                        key={addon._id}
                         className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:border-primary transition-colors"
                       >
                         <div className="flex items-center space-x-3">
@@ -584,19 +630,39 @@ const SingleProductPage = () => {
                             onChange={() => handleAddonToggle(addon._id)}
                             className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
                           />
-                          <div>
-                            <p className="text-sm font-medium text-gray-900 dark:text-white">
-                              {addon.name}
-                            </p>
-                            {addon.description && (
-                              <p className="text-xs text-gray-500 dark:text-gray-400">
-                                {addon.description}
-                              </p>
+                          <div className="flex items-center space-x-2">
+                            {/* Addon Icon */}
+                            {addon.icon ? (
+                              <img
+                                src={addon.icon}
+                                alt={addon.name}
+                                className="h-4 w-4 object-contain"
+                                onError={(e) => {
+                                  // Fallback to default icon if image fails to load
+                                  e.target.style.display = 'none';
+                                  e.target.nextSibling.style.display = 'inline-block';
+                                }}
+                              />
+                            ) : null}
+                            {(addon.icon && Icons[addon.icon]) ? (
+                              React.createElement(Icons[addon.icon], { className: "h-6 w-6 text-primary" })
+                            ) : (
+                              <Icons.FiSettings className="h-4 w-4 text-gray-500" />
                             )}
+                            <div>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                {addon.name}
+                              </p>
+                              {addon.description && (
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  {addon.description}
+                                </p>
+                              )}
+                            </div>
                           </div>
                         </div>
-                        <span className="text-sm font-medium text-primary">
-                          +Rs. {Number(addon.price).toFixed(2)}
+                        <span className="text-sm font-medium text-primary flex items-center gap-1">
+                          Rs. {Number(addon.price).toFixed(2)}
                         </span>
                       </label>
                     ))}
@@ -608,28 +674,40 @@ const SingleProductPage = () => {
             {/* Quantity & All Action Buttons - Mobile: Second Row */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               {/* Quantity Selector */}
-              <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg w-fit">
-                <button
-                  onClick={() => handleQuantityChange(quantity - 1)}
-                  disabled={quantity <= 1}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
-                >
-                  <FiMinus className="h-4 w-4" />
-                </button>
-                <span className="px-3 py-2 font-medium min-w-[2.5rem] text-center text-sm">
-                  {quantity}
-                </span>
-                <button
-                  onClick={() => handleQuantityChange(quantity + 1)}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                >
-                  <FiPlus className="h-4 w-4" />
-                </button>
-              </div>
+              {!isOutOfStock && (
+                <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg w-fit">
+                  <button
+                    onClick={() => handleQuantityChange(quantity - 1)}
+                    disabled={quantity <= 1}
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                  >
+                    <FiMinus className="h-4 w-4" />
+                  </button>
+                  <span className="px-3 py-2 font-medium min-w-[2.5rem] text-center text-sm">
+                    {quantity}
+                  </span>
+                  <button
+                    onClick={() => handleQuantityChange(quantity + 1)}
+                    disabled={quantity >= currentStock}
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                  >
+                    <FiPlus className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
 
               <div className="flex gap-3 flex-1">
                 {/* Add to Cart Button */}
-                {!inCart ? (
+                {isOutOfStock ? (
+                  <Button
+                    disabled={true}
+                    variant="outline"
+                    className="flex-1 py-2 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                    icon={<FiAlertTriangle className="h-4 w-4" />}
+                  >
+                    Out of Stock
+                  </Button>
+                ) : !inCart ? (
                   <Button
                     onClick={handleAddToCart}
                     disabled={cartLoading}
@@ -661,8 +739,8 @@ const SingleProductPage = () => {
                 >
                   <FiHeart
                     className={`h-4 w-4 ${isInWishlist
-                        ? 'text-red-500 fill-current'
-                        : 'text-gray-500'
+                      ? 'text-red-500 fill-current'
+                      : 'text-gray-500'
                       }`}
                   />
                 </Button>
@@ -810,8 +888,8 @@ const SingleProductPage = () => {
                       key={index}
                       onClick={() => handleImageClick(index)}
                       className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${allImages[selectedImageIndex] === image
-                          ? 'border-white'
-                          : 'border-gray-500 hover:border-white'
+                        ? 'border-white'
+                        : 'border-gray-500 hover:border-white'
                         }`}
                     >
                       <img

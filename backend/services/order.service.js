@@ -128,6 +128,43 @@ exports.createOrderFromCart = async (userId, shippingAddress, paymentMethod) => 
     if (paymentMethod === 'COD') {
         const user = await userRepo.findById(userId);
         await sendOrderConfirmationEmail(user.email, order);
+
+        // Stock management for COD orders
+        try {
+            for (const item of orderItems) {
+                const product = await productRepo.getProductById(item.productId);
+
+                if (!product) {
+                    console.error(`Product not found: ${item.productId}`);
+                    continue;
+                }
+
+                // Check if sufficient stock is available
+                if (product.stock < item.quantity) {
+                    // Mark order as failed due to insufficient stock
+                    await orderRepo.updateOrderById(order._id, {
+                        status: 'Failed',
+                        paymentStatus: 'Failed'
+                    });
+                    throw new Error(`Insufficient stock for product: ${product.name}. Available: ${product.stock}, Required: ${item.quantity}`);
+                }
+
+                // Deduct stock
+                product.stock -= item.quantity;
+                await product.save();
+
+                console.log(`Stock updated for ${product.name}: ${item.quantity} units deducted. Remaining stock: ${product.stock}`);
+            }
+
+            console.log(`Stock management completed for COD order: ${order._id}`);
+        } catch (error) {
+            // If stock management fails, mark order as failed
+            await orderRepo.updateOrderById(order._id, {
+                status: 'Failed',
+                paymentStatus: 'Failed'
+            });
+            throw new Error(`Stock management failed: ${error.message}`);
+        }
     }
 
     // Clear cart for non-stripe payments immediately

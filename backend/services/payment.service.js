@@ -2,6 +2,7 @@ const stripe = require('../config/stripe');
 const orderRepo = require('../repositories/order.repository');
 const cartService = require('./cart.service');
 const { sendOrderConfirmationEmail } = require('../utils/sendEmail');
+const productRepo = require("../repositories/product.repository");
 
 // Create payment intent for an order
 exports.createPaymentIntent = async (orderId, userId) => {
@@ -143,7 +144,41 @@ exports.confirmPayment = async (paymentIntentId, userId) => {
         }
 
         // Update order based on payment intent status
-        await exports.updatePaymentStatus(orderId, paymentIntent.status, paymentIntentId);
+        const paymentStatus = await exports.updatePaymentStatus(orderId, paymentIntent.status, paymentIntentId);
+
+        // Stock management
+        if (paymentIntent.status === 'succeeded') {
+            // Get order details to access ordered items
+            const order = await orderRepo.getOrderById(orderId);
+
+            if (!order) {
+                throw new Error('Order not found for stock management');
+            }
+
+            // Update stock for each product in the order
+            for (const item of order.items) {
+                const product = await productRepo.getProductById(item.productId);
+
+                if (!product) {
+                    console.error(`Product not found: ${item.productId}`);
+                    continue;
+                }
+
+                // Check if sufficient stock is available
+                if (product.stock < item.quantity) {
+                    throw new Error(`Insufficient stock for product: ${product.name}. Available: ${product.stock}, Required: ${item.quantity}`);
+                }
+
+                // Deduct stock
+                product.stock -= item.quantity;
+                await product.save();
+
+                console.log(`Stock updated for ${product.name}: ${item.quantity} units deducted. Remaining stock: ${product.stock}`);
+            }
+
+            // Optional: Log stock management completion
+            console.log(`Stock management completed for order: ${orderId}`);
+        }
 
         return {
             paymentIntent,

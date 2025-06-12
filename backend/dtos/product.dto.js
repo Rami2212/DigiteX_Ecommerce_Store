@@ -28,6 +28,7 @@ exports.addProductDto = Joi.object({
     ).default([]),
     category: Joi.string().required(),
     addons: Joi.array().items(Joi.string()).optional(),
+    stock: Joi.number().default(0),
 });
 
 exports.updateProductDto = Joi.object({
@@ -53,4 +54,5 @@ exports.updateProductDto = Joi.object({
     ).optional(),
     category: Joi.string().optional(),
     addons: Joi.array().items(Joi.string()).optional(),
+    stock: Joi.number().optional(),
 });

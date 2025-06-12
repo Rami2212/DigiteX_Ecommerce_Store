@@ -23,6 +23,7 @@ const AddProductPage = () => {
     salePrice: '',
     category: '',
     addons: [],
+    stock: 0,
     productImage: null,
     productImages: [],
     variants: [{ color: '', variantImage: null }]
@@ -215,6 +216,7 @@ const AddProductPage = () => {
           submitData.append('addons[]', addonId);
         });
       }
+      submitData.append('stock', formData.stock);
       
       // Append main product image
       if (formData.productImage) {
@@ -309,7 +311,7 @@ const AddProductPage = () => {
                 error={errors.shortDescription}
                 required
                 disabled={isLoading}
-                rows={3}
+                rows={5}
                 maxLength={200}
               />
             </div>
@@ -325,6 +327,19 @@ const AddProductPage = () => {
                 value={formData.salePrice}
                 onChange={handleInputChange}
                 error={errors.salePrice}
+                disabled={isLoading}
+              />
+
+              <Input
+                name="stock"
+                label="Stock Quantity"
+                type="number"
+                placeholder="Enter stock quantity"
+                min="0"
+                value={formData.stock}
+                onChange={handleInputChange}
+                error={errors.stock}
+                required
                 disabled={isLoading}
               />
             </div>
