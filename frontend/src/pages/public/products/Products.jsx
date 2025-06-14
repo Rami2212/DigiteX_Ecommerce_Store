@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams, useLocation } from 'react-router-dom';
 import {
     FiFilter,
     FiChevronRight,
@@ -9,7 +9,8 @@ import {
     FiStar,
     FiTrendingUp,
     FiUsers,
-    FiShoppingBag
+    FiShoppingBag,
+    FiSearch
 } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import { useProduct } from '../../../hooks/useProduct';
@@ -24,6 +25,8 @@ const ProductsPage = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [productsPerPage] = useState(12);
+    const [searchParams] = useSearchParams();
+    const location = useLocation();
 
     const {
         products,
@@ -36,10 +39,29 @@ const ProductsPage = () => {
 
     const { categories, getCategories } = useCategory();
 
+    // Get search query and category from URL parameters
+    const urlSearchQuery = searchParams.get('search') || '';
+    const urlCategoryId = searchParams.get('category') || '';
+
     useEffect(() => {
         getProducts(1, 100); // Get more products for filtering
         getCategories();
     }, []);
+
+    // Set initial filters from URL parameters
+    useEffect(() => {
+        const initialFilters = {};
+        
+        if (urlSearchQuery) {
+            initialFilters.searchQuery = urlSearchQuery;
+        }
+        
+        if (urlCategoryId) {
+            initialFilters.selectedCategories = [urlCategoryId];
+        }
+        
+        setCurrentFilters(initialFilters);
+    }, [urlSearchQuery, urlCategoryId, location.search]);
 
     // Apply filters to products
     const applyFilters = useMemo(() => {
@@ -208,6 +230,39 @@ const ProductsPage = () => {
         return false;
     });
 
+    // Get current search/category info for display
+    const getCurrentFilterInfo = () => {
+        if (urlSearchQuery) {
+            return {
+                type: 'search',
+                query: urlSearchQuery,
+                title: `Search Results for "${urlSearchQuery}"`,
+                description: `Found ${filteredProducts.length} products matching your search`
+            };
+        }
+        
+        if (urlCategoryId && categories.length > 0) {
+            const category = categories.find(cat => cat._id === urlCategoryId);
+            if (category) {
+                return {
+                    type: 'category',
+                    query: category.name,
+                    title: `${category.name} Products`,
+                    description: `Explore our ${filteredProducts.length} ${category.name.toLowerCase()} products`
+                };
+            }
+        }
+        
+        return {
+            type: 'all',
+            query: '',
+            title: 'All Products',
+            description: `Discover our curated collection of ${totalProducts || products?.length || 0}+ premium products`
+        };
+    };
+
+    const filterInfo = getCurrentFilterInfo();
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
@@ -257,34 +312,52 @@ const ProductsPage = () => {
                         <FiHome className="h-4 w-4" />
                     </Link>
                     <FiChevronRight className="h-4 w-4 text-gray-400" />
-                    <span className="text-gray-900 dark:text-white font-medium">
-                        All Products
-                    </span>
+                    <Link to="/products" className="text-gray-500 hover:text-primary transition-colors">
+                        Products
+                    </Link>
+                    {filterInfo.type !== 'all' && (
+                        <>
+                            <FiChevronRight className="h-4 w-4 text-gray-400" />
+                            <span className="text-gray-900 dark:text-white font-medium">
+                                {filterInfo.query}
+                            </span>
+                        </>
+                    )}
                 </motion.nav>
 
                 {/* Hero Section */}
                 <motion.div variants={itemVariants} className="mb-12">
-                    <div className="bg-gradient-to-r from-primary to-primary/80 rounded-2xl shadow-xl p-8 md:p-12 text-white">
+                    <div className={`rounded-2xl shadow-xl p-8 md:p-12 text-white bg-gradient-to-r from-primary to-primary/80
+                    }`}>
                         <div className="max-w-3xl">
                             <h1 className="text-4xl lg:text-5xl font-bold mb-4 text-white">
-                                Discover Amazing Products
+                                {filterInfo.title}
                             </h1>
-                            <p className="text-xl text-primary-100 mb-6">
-                                Explore our curated collection of {totalProducts || products?.length || 0}+ premium products across multiple categories
+                            <p className="text-xl text-white/90 mb-6">
+                                {filterInfo.description}
                             </p>
                             <div className="flex flex-wrap gap-4">
-                                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
-                                    <FiPackage className="h-5 w-5" />
-                                    <span>Premium Quality</span>
-                                </div>
-                                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
-                                    <FiStar className="h-5 w-5" />
-                                    <span>Top Rated</span>
-                                </div>
-                                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
-                                    <FiTrendingUp className="h-5 w-5" />
-                                    <span>Trending Now</span>
-                                </div>
+                                {filterInfo.type === 'search' ? (
+                                    <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
+                                        <FiSearch className="h-5 w-5" />
+                                        <span>Search Results</span>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
+                                            <FiPackage className="h-5 w-5" />
+                                            <span>Premium Quality</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
+                                            <FiStar className="h-5 w-5" />
+                                            <span>Top Rated</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
+                                            <FiTrendingUp className="h-5 w-5" />
+                                            <span>Trending Now</span>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -298,6 +371,7 @@ const ProductsPage = () => {
                         onFiltersChange={handleFiltersChange}
                         isOpen={isSidebarOpen}
                         onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                        initialFilters={currentFilters}
                     />
 
                     {/* Products Section */}
@@ -310,6 +384,11 @@ const ProductsPage = () => {
                                     <span className="text-lg font-semibold text-gray-900 dark:text-white">
                                         {filteredProducts.length} Products Found
                                     </span>
+                                    {filterInfo.type === 'search' && (
+                                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                                            for "{urlSearchQuery}"
+                                        </span>
+                                    )}
                                 </div>
 
                                 <div className="flex items-center gap-4">
@@ -380,21 +459,38 @@ const ProductsPage = () => {
                             >
                                 <FiPackage className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                                    No products found
+                                    {filterInfo.type === 'search' 
+                                        ? `No products found for "${urlSearchQuery}"`
+                                        : 'No products found'
+                                    }
                                 </h3>
                                 <p className="text-gray-600 dark:text-gray-400 mb-6">
-                                    {hasActiveFilters
+                                    {filterInfo.type === 'search' 
+                                        ? 'Try searching with different keywords or check your spelling.'
+                                        : hasActiveFilters
                                         ? 'Try adjusting your filters to find what you\'re looking for.'
                                         : 'No products are available at the moment.'
                                     }
                                 </p>
-                                {hasActiveFilters && (
-                                    <Button
-                                        onClick={() => setCurrentFilters({})}
-                                        variant="primary"
-                                    >
-                                        Clear All Filters
-                                    </Button>
+                                {(hasActiveFilters || filterInfo.type === 'search') && (
+                                    <div className="flex gap-3 justify-center">
+                                        {hasActiveFilters && (
+                                            <Button
+                                                onClick={() => setCurrentFilters({})}
+                                                variant="primary"
+                                            >
+                                                Clear All Filters
+                                            </Button>
+                                        )}
+                                        {filterInfo.type === 'search' && (
+                                            <Button
+                                                onClick={() => window.location.href = '/products'}
+                                                variant="outline"
+                                            >
+                                                Browse All Products
+                                            </Button>
+                                        )}
+                                    </div>
                                 )}
                             </motion.div>
                         )}

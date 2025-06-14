@@ -433,7 +433,7 @@ export class UserStatsCalculations {
    * Utility function to format currency
    */
   static formatCurrency(amount) {
-    return `$${amount.toFixed(2)}`;
+    return `LKR ${amount.toFixed(2)}`;
   }
 
   /**

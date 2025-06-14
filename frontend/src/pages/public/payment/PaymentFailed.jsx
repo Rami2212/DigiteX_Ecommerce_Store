@@ -47,12 +47,12 @@ const PaymentFailedPage = () => {
 
     const handleViewOrder = () => {
         // Navigate to order details
-        navigate(`/orders/${orderId}`);
+        navigate(`/user/order/${orderId}`);
     };
 
     const handleBackToOrders = () => {
         // Navigate to orders list
-        navigate('/orders');
+        navigate('/user/orders');
     };
 
     const handleContactSupport = () => {
@@ -94,7 +94,7 @@ const PaymentFailedPage = () => {
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
                         Order ID Not Found
                     </h1>
-                    <Button onClick={() => navigate('/orders')}>
+                    <Button onClick={() => navigate('/user/orders')}>
                         View All Orders
                     </Button>
                 </div>

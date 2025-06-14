@@ -78,7 +78,7 @@ const RetryPaymentPage = () => {
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
                         Order ID Not Found
                     </h1>
-                    <Button onClick={() => navigate('/orders')}>
+                    <Button onClick={() => navigate('/user/orders')}>
                         View All Orders
                     </Button>
                 </div>
@@ -221,7 +221,7 @@ const RetryPaymentPage = () => {
                             <Button
                                 variant="outline"
                                 className="w-full"
-                                onClick={() => navigate(`/orders/${orderId}`)}
+                                onClick={() => navigate(`user/order/${orderId}`)}
                             >
                                 View Order Details
                             </Button>
@@ -254,7 +254,7 @@ const RetryPaymentPage = () => {
                         <Button
                             variant="primary"
                             className="w-full"
-                            onClick={() => navigate(`/orders/${orderId}`)}
+                            onClick={() => navigate(`user/order/${orderId}`)}
                         >
                             View Order Details
                         </Button>

@@ -178,8 +178,8 @@ const SingleProductPage = () => {
   const inCart = product ? isItemInCart(product._id, selectedVariant?.color) : false;
   const cartQuantity = product ? getItemQuantity(product._id, selectedVariant?.color) : 0;
 
-  // Stock management
-  const currentStock = selectedVariant ? selectedVariant.stock : product?.stock || 0;
+  // Stock management - FIXED: Use product stock, not variant stock
+  const currentStock = product?.stock || 0;
   const isOutOfStock = currentStock <= 0;
   const isLowStock = currentStock > 0 && currentStock <= 5;
 
@@ -279,6 +279,7 @@ const SingleProductPage = () => {
 
   const handleVariantChange = (variant) => {
     setSelectedVariant(variant);
+    // FIXED: Reset quantity to 1 - stock is at product level, not variant level
     setQuantity(1);
 
     // Update selected image index to show variant image if it exists
@@ -430,7 +431,7 @@ const SingleProductPage = () => {
                     className="w-full h-full object-cover"
                   />
                 )}
-                {/* Stock badge */}
+                {/* Stock badge - FIXED: Always show when out of stock */}
                 {isOutOfStock && (
                   <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                     <div className="bg-red-500 text-white px-4 py-2 rounded-lg font-medium">
@@ -493,7 +494,7 @@ const SingleProductPage = () => {
               )}
             </div>
 
-            {/* Stock Status */}
+            {/* Stock Status - FIXED: Always update based on current stock */}
             <div className="flex items-center gap-2">
               {isOutOfStock ? (
                 <div className="flex items-center gap-2 text-red-600">
@@ -575,27 +576,21 @@ const SingleProductPage = () => {
                 </h3>
                 <div className="flex gap-2">
                   {product.variants.map((variant, index) => {
-                    const variantOutOfStock = variant.stock <= 0;
+                    // FIXED: Allow color selection even when out of stock
                     return (
                       <button
                         key={index}
-                        onClick={() => !variantOutOfStock && handleVariantChange(variant)}
-                        disabled={variantOutOfStock}
+                        onClick={() => handleVariantChange(variant)}
                         className={`relative w-8 h-8 rounded-full border-2 transition-all duration-200 ${
-                          variantOutOfStock 
-                            ? 'border-gray-300 dark:border-gray-600 opacity-50 cursor-not-allowed'
-                            : selectedVariant?.color === variant.color
-                              ? 'border-primary scale-110 shadow-md'
-                              : 'border-gray-300 dark:border-gray-600 hover:border-primary hover:scale-105'
-                        }`}
-                        style={{ backgroundColor: variantOutOfStock ? '#f3f4f6' : variant.color.toLowerCase() }}
-                        title={variantOutOfStock ? `${variant.color} - Out of Stock` : variant.color}
+                          selectedVariant?.color === variant.color
+                            ? 'border-primary scale-110 shadow-md'
+                            : 'border-gray-300 dark:border-gray-600 hover:border-primary hover:scale-105'
+                        } ${isOutOfStock ? 'opacity-75' : ''}`}
+                        style={{ backgroundColor: variant.color.toLowerCase() }}
+                        title={`${variant.color}${isOutOfStock ? ' - Product Out of Stock' : ''}`}
                       >
-                        {selectedVariant?.color === variant.color && !variantOutOfStock && (
+                        {selectedVariant?.color === variant.color && (
                           <FiCheck className="h-4 w-4 text-white m-auto" />
-                        )}
-                        {variantOutOfStock && (
-                          <FiX className="h-4 w-4 text-gray-500 m-auto" />
                         )}
                       </button>
                     );
@@ -673,7 +668,7 @@ const SingleProductPage = () => {
 
             {/* Quantity & All Action Buttons - Mobile: Second Row */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              {/* Quantity Selector */}
+              {/* Quantity Selector - FIXED: Hide when out of stock */}
               {!isOutOfStock && (
                 <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg w-fit">
                   <button
@@ -697,7 +692,7 @@ const SingleProductPage = () => {
               )}
 
               <div className="flex gap-3 flex-1">
-                {/* Add to Cart Button */}
+                {/* Add to Cart Button - FIXED: Check stock properly */}
                 {isOutOfStock ? (
                   <Button
                     disabled={true}

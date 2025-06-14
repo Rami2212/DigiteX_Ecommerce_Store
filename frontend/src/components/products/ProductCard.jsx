@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   FiHeart, 
@@ -16,7 +16,7 @@ import Button from '../common/Button';
 
 const ProductCard = ({ product }) => {
   const { addToCart, isItemInCart, isLoading: cartLoading } = useCart();
-  const { addToWishlist, removeFromWishlist, isItemInWishlist, isLoading: wishlistLoading } = useWishlist();
+  const { addToWishlist, removeFromWishlist, isItemInWishlist, isLoading: wishlistLoading, wishlist, getWishlist } = useWishlist();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   
@@ -24,8 +24,11 @@ const ProductCard = ({ product }) => {
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [isHovered, setIsHovered] = useState(false);
-  const [isInWishlist, setIsInWishlist] = useState(false);
   const [inCart, setInCart] = useState(false); // Local cart state
+  const [isInWishlist, setIsInWishlist] = useState(false); // Local wishlist state
+  
+  // Use ref to track if we've already called getWishlist to prevent infinite calls
+  const wishlistFetched = useRef(false);
 
   const productSlug = product.name?.toLowerCase().replace(/\s+/g, '-') || '';
   const discountPercentage = product.salePrice && product.price 
@@ -44,12 +47,33 @@ const ProductCard = ({ product }) => {
     }
   }, [product, selectedVariant, isItemInCart]);
 
-  // Update local wishlist state when component mounts or product changes
+  // Update local wishlist state when wishlist data changes
   useEffect(() => {
-    if (product) {
-      setIsInWishlist(isItemInWishlist(product._id));
+    if (product && wishlist) {
+      const wishlistStatus = isItemInWishlist(product._id);
+      setIsInWishlist(wishlistStatus);
     }
-  }, [product, isItemInWishlist]);
+  }, [product, wishlist, isItemInWishlist]);
+
+  // Load wishlist data ONCE when component mounts and user is authenticated
+  // Remove getWishlist from dependencies to prevent infinite loop
+  useEffect(() => {
+    if (isAuthenticated && !wishlist && !wishlistFetched.current) {
+      wishlistFetched.current = true;
+      getWishlist().catch(() => {
+        // Reset flag on error so it can retry
+        wishlistFetched.current = false;
+      });
+    }
+  }, [isAuthenticated, wishlist]); // Removed getWishlist from dependencies
+
+  // Reset wishlist fetched flag when user logs out
+  useEffect(() => {
+    if (!isAuthenticated) {
+      wishlistFetched.current = false;
+      setIsInWishlist(false);
+    }
+  }, [isAuthenticated]);
 
   const renderStars = (rating) => {
     const stars = [];
@@ -115,16 +139,18 @@ const ProductCard = ({ product }) => {
     try {
       if (isInWishlist) {
         await removeFromWishlist(product._id);
-        setIsInWishlist(false);
+        setIsInWishlist(false); // Immediate UI update
       } else {
         const wishlistData = {
           productId: product._id
         };
         await addToWishlist(wishlistData);
-        setIsInWishlist(true);
+        setIsInWishlist(true); // Immediate UI update
       }
     } catch (error) {
       console.error('Failed to toggle wishlist:', error);
+      // Revert the optimistic update on error
+      setIsInWishlist(!isInWishlist);
     }
   };
 
