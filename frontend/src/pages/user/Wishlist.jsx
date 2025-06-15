@@ -352,16 +352,6 @@ const WishlistPage = () => {
 
                                             {/* Action Buttons */}
                                             <div className="space-y-2">
-                                                <Button
-                                                    variant="primary"
-                                                    className="w-full"
-                                                    onClick={() => handleMoveToCart(item)}
-                                                    disabled={product.stock === 0}
-                                                    icon={<HiOutlineShoppingCart className="h-4 w-4" />}
-                                                >
-                                                    {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-                                                </Button>
-                                                
                                                 <Link
                                                     to={`/product/${product._id}/${productSlug}`}
                                                     className="w-full"

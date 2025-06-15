@@ -135,19 +135,14 @@ const AboutPage = () => {
             className="max-w-4xl mx-auto"
           >
             <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white">
-              About LaptopStore
+              About DigiteX
             </h1>
             <p className="text-xl md:text-2xl text-primary-100 mb-8 max-w-3xl mx-auto">
               Your trusted partner in finding the perfect laptop for work, gaming, and creativity since 2018
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/products">
+              <Link to="/contact">
                 <Button size="lg" variant="secondary" className="bg-white text-primary hover:bg-gray-100">
-                  Shop Our Collection
-                </Button>
-              </Link>
-              <Link to="/support">
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
                   Contact Us
                 </Button>
               </Link>
@@ -185,7 +180,7 @@ const AboutPage = () => {
       {/* Our Story Section */}
       <motion.section variants={itemVariants} className="py-16">
         <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
+          <div className="mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div>
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">
@@ -193,7 +188,7 @@ const AboutPage = () => {
                 </h2>
                 <div className="space-y-4 text-gray-600 dark:text-gray-400">
                   <p className="text-lg">
-                    Founded in 2018 by a team of technology enthusiasts, LaptopStore began with a simple mission: 
+                    Founded in 2018 by Ramitha Iddamalgoda, DigiteX began with a simple mission: 
                     to make high-quality laptops accessible to everyone, from students to professionals to gamers.
                   </p>
                   <p>
@@ -221,7 +216,7 @@ const AboutPage = () => {
                   <img
                     src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop"
                     alt="Our team"
-                    className="w-full h-64 object-cover rounded-xl shadow-lg"
+                    className="w-full h-80 object-cover rounded-xl shadow-lg"
                   />
                 </div>
               </div>
@@ -317,11 +312,6 @@ const AboutPage = () => {
               <Link to="/products">
                 <Button size="lg" variant="secondary" className="bg-white text-primary hover:bg-gray-100">
                   Browse Laptops
-                </Button>
-              </Link>
-              <Link to="/support">
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
-                  Get Expert Help
                 </Button>
               </Link>
             </div>

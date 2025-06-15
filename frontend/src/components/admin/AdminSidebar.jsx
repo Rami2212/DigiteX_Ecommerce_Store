@@ -84,8 +84,6 @@ const AdminSidebar = ({ isOpen, onClose }) => {
       path: '/admin/analytics',
       children: [
         { title: 'Analytics', path: '/admin/analytics' },
-        { title: 'Reports', path: '/admin/analytics/reports' },
-        { title: 'Traffic', path: '/admin/analytics/traffic' }
       ]
     },
   ];

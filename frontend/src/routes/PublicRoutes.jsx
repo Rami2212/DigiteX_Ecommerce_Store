@@ -28,6 +28,7 @@ import HomePage from '../pages/public/Home';
 import NotFoundPage from '../pages/public/NotFoundPage';
 import AboutPage from '../pages/public/About';
 import ContactPage from '../pages/public/Contact';
+import PopupManager from '../components/popups/PopupManager';
 
 const PublicRoutes = () => {
   const location = useLocation(); // required for AnimatePresence
@@ -67,6 +68,7 @@ const PublicRoutes = () => {
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
+      <PopupManager />
     </AnimatePresence>
   );
 };
