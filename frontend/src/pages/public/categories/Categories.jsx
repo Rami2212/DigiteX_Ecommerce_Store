@@ -6,7 +6,7 @@ import {
   HiViewList,
   HiOutlineFilter
 } from 'react-icons/hi';
-import { useCategory } from '../../hooks/useCategory';
+import { useCategory } from '../../../hooks/useCategory';
 
 const CategoriesPage = () => {
   const [searchQuery, setSearchQuery] = useState('');

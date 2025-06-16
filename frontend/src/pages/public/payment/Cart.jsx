@@ -18,10 +18,10 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 // Assuming these are your common components' paths
-import Button from '../../components/common/Button';
-import Input from '../../components/common/Input';
-import DeleteModal from '../../components/modals/DeleteModal';
-import { useCart } from '../../hooks/useCart';
+import Button from '../../../components/common/Button';
+import Input from '../../../components/common/Input';
+import DeleteModal from '../../../components/modals/DeleteModal';
+import { useCart } from '../../../hooks/useCart';
 
 const CartPage = () => {
     const {

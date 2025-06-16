@@ -6,10 +6,10 @@ import {
   FiTrendingUp
 } from 'react-icons/fi';
 import { motion } from 'framer-motion';
-import { useProduct } from '../../hooks/useProduct';
-import { useCategory } from '../../hooks/useCategory';
-import ProductCard from '../../components/products/ProductCard';
-import Button from '../../components/common/Button';
+import { useProduct } from '../../../hooks/useProduct';
+import { useCategory } from '../../../hooks/useCategory';
+import ProductCard from '../../../components/products/ProductCard';
+import Button from '../../../components/common/Button';
 
 const CategoryProductsPage = () => {
   const { categorySlug } = useParams();

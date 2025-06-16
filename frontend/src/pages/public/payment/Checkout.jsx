@@ -3,15 +3,13 @@ import { FiUser, FiPhone, FiMapPin, FiCreditCard, FiTruck, FiShoppingBag, FiArro
 import { motion } from 'framer-motion';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import Button from '../../components/common/Button';
-import Input from '../../components/common/Input';
-import { useOrder } from '../../hooks/useOrder';
-import { useCart } from '../../hooks/useCart';
+import Button from '../../../components/common/Button';
+import Input from '../../../components/common/Input';
+import { useOrder } from '../../../hooks/useOrder';
+import { useCart } from '../../../hooks/useCart';
 import { useNavigate } from 'react-router-dom';
-import PaymentForm from './payment/PaymentForm';
+import PaymentForm from './PaymentForm';
 
-// Make sure to call loadStripe outside of a component's render to avoid
-// recreating the Stripe object on every render.
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const CheckoutPage = () => {

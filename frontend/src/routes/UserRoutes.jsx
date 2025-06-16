@@ -14,7 +14,7 @@ import ChangeEmail from '../pages/user/profile/ChangeEmail';
 import MyOrders from '../pages/user/orders/MyOrders';
 import Order from '../pages/user/orders/Order';
 import WishlistPage from '../pages/user/Wishlist';
-import UserStatsPage from '../pages/user/Stats';
+import UserStatsPage from '../pages/user/stats/Stats';
 
 // User pages
 // Import your user pages here

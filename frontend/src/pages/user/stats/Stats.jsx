@@ -21,10 +21,10 @@ import {
   HiOutlineCog
 } from 'react-icons/hi';
 import { motion } from 'framer-motion';
-import { useAuth } from '../../hooks/useAuth';
-import { useOrder } from '../../hooks/useOrder';
-import { useWishlist } from '../../hooks/useWishlist';
-import { UserStatsCalculations } from './userStatsCalculations';
+import { useAuth } from '../../../hooks/useAuth';
+import { useOrder } from '../../../hooks/useOrder';
+import { useWishlist } from '../../../hooks/useWishlist';
+import { UserStatsCalculations } from './UserStatsCalculations';
 
 const UserStatsPage = () => {
   const { user } = useAuth();

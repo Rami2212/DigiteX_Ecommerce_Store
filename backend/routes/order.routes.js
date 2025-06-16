@@ -4,46 +4,40 @@ const orderController = require('../controllers/order.controller');
 const { authenticate } = require('../middleware/auth.middleware');
 const { isAdmin } = require('../middleware/role.middleware');
 
-// User routes (require authentication)
-router.use(authenticate);
-
 // POST create order from custom items
-router.post('/', orderController.createOrder);
+router.post('/', authenticate, orderController.createOrder);
 
 // POST create order from cart
-router.post('/from-cart', orderController.createOrderFromCart);
+router.post('/from-cart', authenticate, orderController.createOrderFromCart);
 
 // GET user's orders
-router.get('/my-orders', orderController.getUserOrders);
+router.get('/my-orders', authenticate, orderController.getUserOrders);
 
 // GET specific order by ID (user can only access their own orders)
-router.get('/:id', orderController.getOrderById);
+router.get('/:id', authenticate, orderController.getOrderById);
 
 // PUT cancel user's order
-router.put('/:id/cancel', orderController.cancelOrder);
-
-// Admin routes (require admin role)
-router.use(isAdmin);
+router.put('/:id/cancel', authenticate, orderController.cancelOrder);
 
 // GET all orders (admin only)
-router.get('/', orderController.getAllOrders);
+router.get('/', authenticate, isAdmin, orderController.getAllOrders);
 
 // GET order statistics (admin only)
-router.get('/admin/stats', orderController.getOrderStats);
+router.get('/admin/stats', authenticate, isAdmin, orderController.getOrderStats);
 
 // PUT update order status (admin only)
-router.put('/:id/status', orderController.updateOrderStatus);
+router.put('/:id/status', authenticate, isAdmin, orderController.updateOrderStatus);
 
 // PUT update payment status (admin only)
-router.put('/:id/payment', orderController.updatePaymentStatus);
+router.put('/:id/payment', authenticate, isAdmin, orderController.updatePaymentStatus);
 
 // PUT update delivery status (admin only)
-router.put('/:id/delivery', orderController.updateDeliveryStatus);
+router.put('/:id/delivery', authenticate, isAdmin, orderController.updateDeliveryStatus);
 
 // PUT cancel any order (admin only)
-router.put('/:id/admin-cancel', orderController.adminCancelOrder);
+router.put('/:id/admin-cancel', authenticate, isAdmin, orderController.adminCancelOrder);
 
 // DELETE order (admin only)
-router.delete('/:id', orderController.deleteOrder);
+router.delete('/:id', authenticate, isAdmin, orderController.deleteOrder);
 
 module.exports = router;
