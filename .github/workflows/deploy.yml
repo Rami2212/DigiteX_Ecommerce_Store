@@ -20,8 +20,8 @@ jobs:
         uses: azure/docker-login@v1
         with:
           login-server: digitex.azurecr.io
-          username: ${{ secrets.digitex }}
-          password: ${{ secrets.Vxt2hw3wX2psHCR1CRmU4L3ZkCoLbsX6NQ2vnQJM4p+ACRCpTuw8 }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Build and push images
         run: |
