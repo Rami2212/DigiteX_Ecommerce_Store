@@ -114,7 +114,7 @@ const OrderPendingPage = () => {
 
     const handleViewOrder = () => {
         // Navigate to order details
-        navigate(`/orders/${orderId}`);
+        navigate(`user/order/${orderId}`);
     };
 
     const handleRefresh = () => {
@@ -135,7 +135,7 @@ const OrderPendingPage = () => {
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
                         Order ID Not Found
                     </h1>
-                    <Button onClick={() => navigate('/orders')}>
+                    <Button onClick={() => navigate('/user/orders')}>
                         View All Orders
                     </Button>
                 </div>
@@ -166,7 +166,7 @@ const OrderPendingPage = () => {
                     <p className="text-gray-600 dark:text-gray-400 mb-4">
                         The order you're looking for doesn't exist or you don't have permission to view it.
                     </p>
-                    <Button onClick={() => navigate('/orders')}>
+                    <Button onClick={() => navigate('/user/orders')}>
                         View All Orders
                     </Button>
                 </div>

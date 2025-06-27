@@ -83,32 +83,9 @@ const AdminSidebar = ({ isOpen, onClose }) => {
       icon: FiSettings,
       path: '/admin/analytics',
       children: [
-        { title: 'Dashboard', path: '/admin/analytics' },
-        { title: 'Reports', path: '/admin/analytics/reports' },
-        { title: 'Traffic', path: '/admin/analytics/traffic' }
+        { title: 'Analytics', path: '/admin/analytics' },
       ]
     },
-    {
-      title: 'Security',
-      icon: FiShield,
-      path: '/admin/security',
-      children: [
-        { title: 'Access Logs', path: '/admin/security/logs' },
-        { title: 'Permissions', path: '/admin/security/permissions' },
-        { title: 'Backups', path: '/admin/security/backups' }
-      ]
-    },
-    {
-      title: 'Settings',
-      icon: FiSettings,
-      path: '/admin/settings',
-      children: [
-        { title: 'General', path: '/admin/settings/general' },
-        { title: 'Appearance', path: '/admin/settings/appearance' },
-        { title: 'Email', path: '/admin/settings/email' },
-        { title: 'API', path: '/admin/settings/api' }
-      ]
-    }
   ];
 
   const [expandedItems, setExpandedItems] = React.useState(new Set());

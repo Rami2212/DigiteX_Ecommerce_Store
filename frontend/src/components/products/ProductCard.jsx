@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   FiHeart, 
@@ -16,16 +16,19 @@ import Button from '../common/Button';
 
 const ProductCard = ({ product }) => {
   const { addToCart, isItemInCart, isLoading: cartLoading } = useCart();
-  const { addToWishlist, removeFromWishlist, isItemInWishlist, isLoading: wishlistLoading } = useWishlist();
+  const { addToWishlist, removeFromWishlist, isItemInWishlist, isLoading: wishlistLoading, wishlist, getWishlist } = useWishlist();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   
-  const [selectedVariant, setSelectedVariant] = useState(
-    product.variants && product.variants.length > 0 ? product.variants[0] : null
-  );
+  // No default variant selection - let user choose
+  const [selectedVariant, setSelectedVariant] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [isHovered, setIsHovered] = useState(false);
-  const [isInWishlist, setIsInWishlist] = useState(false);
+  const [inCart, setInCart] = useState(false); // Local cart state
+  const [isInWishlist, setIsInWishlist] = useState(false); // Local wishlist state
+  
+  // Use ref to track if we've already called getWishlist to prevent infinite calls
+  const wishlistFetched = useRef(false);
 
   const productSlug = product.name?.toLowerCase().replace(/\s+/g, '-') || '';
   const discountPercentage = product.salePrice && product.price 
@@ -33,18 +36,44 @@ const ProductCard = ({ product }) => {
     : 0;
 
   const finalPrice = product.salePrice || product.price;
-  
-  // Check if the specific variant (or no variant) is in cart
-  const inCart = selectedVariant 
-    ? isItemInCart(product._id, selectedVariant.color)
-    : isItemInCart(product._id, null);
 
-  // Update local wishlist state when component mounts or product changes
+  // Update local cart state whenever cart changes or variant selection changes
   useEffect(() => {
     if (product) {
-      setIsInWishlist(isItemInWishlist(product._id));
+      const cartStatus = selectedVariant 
+        ? isItemInCart(product._id, selectedVariant.color)
+        : isItemInCart(product._id, null);
+      setInCart(cartStatus);
     }
-  }, [product, isItemInWishlist]);
+  }, [product, selectedVariant, isItemInCart]);
+
+  // Update local wishlist state when wishlist data changes
+  useEffect(() => {
+    if (product && wishlist) {
+      const wishlistStatus = isItemInWishlist(product._id);
+      setIsInWishlist(wishlistStatus);
+    }
+  }, [product, wishlist, isItemInWishlist]);
+
+  // Load wishlist data ONCE when component mounts and user is authenticated
+  // Remove getWishlist from dependencies to prevent infinite loop
+  useEffect(() => {
+    if (isAuthenticated && !wishlist && !wishlistFetched.current) {
+      wishlistFetched.current = true;
+      getWishlist().catch(() => {
+        // Reset flag on error so it can retry
+        wishlistFetched.current = false;
+      });
+    }
+  }, [isAuthenticated, wishlist]); // Removed getWishlist from dependencies
+
+  // Reset wishlist fetched flag when user logs out
+  useEffect(() => {
+    if (!isAuthenticated) {
+      wishlistFetched.current = false;
+      setIsInWishlist(false);
+    }
+  }, [isAuthenticated]);
 
   const renderStars = (rating) => {
     const stars = [];
@@ -84,6 +113,9 @@ const ProductCard = ({ product }) => {
       };
       
       await addToCart(cartData);
+      
+      // Immediately update local cart state
+      setInCart(true);
     } catch (error) {
       console.error('Failed to add to cart:', error);
     }
@@ -107,24 +139,31 @@ const ProductCard = ({ product }) => {
     try {
       if (isInWishlist) {
         await removeFromWishlist(product._id);
-        setIsInWishlist(false);
+        setIsInWishlist(false); // Immediate UI update
       } else {
         const wishlistData = {
           productId: product._id
         };
         await addToWishlist(wishlistData);
-        setIsInWishlist(true);
+        setIsInWishlist(true); // Immediate UI update
       }
     } catch (error) {
       console.error('Failed to toggle wishlist:', error);
+      // Revert the optimistic update on error
+      setIsInWishlist(!isInWishlist);
     }
   };
 
   const handleVariantChange = (variant) => {
     setSelectedVariant(variant);
     setQuantity(1); // Reset quantity when variant changes
+    
+    // Update cart status for new variant
+    const cartStatus = isItemInCart(product._id, variant.color);
+    setInCart(cartStatus);
   };
 
+  // Show main product image first, then variant image if selected
   const displayImage = selectedVariant?.variantImage || product.productImage || product.productImages?.[0];
 
   return (
@@ -140,11 +179,16 @@ const ProductCard = ({ product }) => {
       {/* Product Image */}
       <div className="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-700">
         <Link to={`/product/${product._id}/${productSlug}`}>
-          <img
-            src={displayImage}
-            alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          />
+          {displayImage && (
+            <img
+              src={displayImage}
+              alt={product.name}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
+          )}
         </Link>
         
         {/* Badges */}
@@ -275,7 +319,13 @@ const ProductCard = ({ product }) => {
         {/* Variants */}
         {product.variants && product.variants.length > 0 && (
           <div className="space-y-2">
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Colors:</p>
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Colors: {selectedVariant ? (
+                <span className="font-normal">{selectedVariant.color}</span>
+              ) : (
+                <span className="font-normal text-gray-500 dark:text-gray-400">Select a color</span>
+              )}
+            </p>
             <div className="flex gap-2">
               {product.variants.map((variant, index) => (
                 <button

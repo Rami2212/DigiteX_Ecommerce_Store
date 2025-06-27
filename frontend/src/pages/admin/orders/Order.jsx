@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  FiArrowLeft, 
-  FiUser, 
-  FiMapPin, 
-  FiPackage, 
-  FiCreditCard, 
+import {
+  FiArrowLeft,
+  FiUser,
+  FiMapPin,
+  FiPackage,
+  FiCreditCard,
   FiCalendar,
   FiTruck,
   FiEdit2,
@@ -152,16 +152,14 @@ const SingleOrderPage = () => {
     >
       {/* Header */}
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
           <div className="flex items-center space-x-4">
             <Button
               variant="ghost"
               size="sm"
               icon={<FiArrowLeft className="h-5 w-5" />}
               onClick={handleBack}
-            >
-              Back to Orders
-            </Button>
+            />
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
                 Order #{currentOrder._id?.slice(-8)}
@@ -178,21 +176,14 @@ const SingleOrderPage = () => {
               </p>
             </div>
           </div>
-          <div className="flex items-center space-x-2">
-            {/* <Button
-              variant="outline"
-              size="sm"
-              icon={<FiEdit2 className="h-4 w-4" />}
-              onClick={() => navigate(`/admin/orders/${orderId}/edit`)}
-            >
-              Edit
-            </Button> */}
+
+          <div className="flex items-center sm:justify-end w-full sm:w-auto">
             <Button
               variant="outline"
               size="sm"
               icon={<FiTrash2 className="h-4 w-4" />}
               onClick={openDeleteModal}
-              className="text-red-600 border-red-300 hover:bg-red-50"
+              className="w-full sm:w-auto text-red-600 border-red-300 hover:bg-red-50"
             >
               Delete
             </Button>
@@ -236,11 +227,11 @@ const SingleOrderPage = () => {
               <FiPackage className="h-5 w-5" />
               Order Items ({currentOrder.items?.length || 0})
             </h2>
-            
+
             <div className="space-y-4">
               {currentOrder.items?.map((item, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="flex items-center justify-between py-4 border-b border-gray-200 last:border-b-0"
                 >
                   <div className="flex-1">
@@ -280,7 +271,7 @@ const SingleOrderPage = () => {
               <FiMapPin className="h-5 w-5" />
               Shipping Address
             </h2>
-            
+
             {currentOrder.shippingAddress ? (
               <div className="text-sm text-gray-600 space-y-1">
                 <p className="font-medium text-gray-900">
@@ -312,7 +303,7 @@ const SingleOrderPage = () => {
               <FiUser className="h-5 w-5" />
               Customer Information
             </h2>
-            
+
             {currentOrder.user ? (
               <div className="space-y-3">
                 <div>
@@ -343,7 +334,7 @@ const SingleOrderPage = () => {
               <FiCalendar className="h-5 w-5" />
               Order Timeline
             </h2>
-            
+
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Order Created</span>
@@ -351,7 +342,7 @@ const SingleOrderPage = () => {
                   {new Date(currentOrder.createdAt).toLocaleDateString()}
                 </span>
               </div>
-              
+
               {currentOrder.paidAt && (
                 <div className="flex justify-between">
                   <span className="text-gray-600">Payment Received</span>
@@ -360,7 +351,7 @@ const SingleOrderPage = () => {
                   </span>
                 </div>
               )}
-              
+
               {currentOrder.deliveredAt && (
                 <div className="flex justify-between">
                   <span className="text-gray-600">Delivered</span>
@@ -369,7 +360,7 @@ const SingleOrderPage = () => {
                   </span>
                 </div>
               )}
-              
+
               <div className="flex justify-between">
                 <span className="text-gray-600">Last Updated</span>
                 <span className="text-gray-900">
@@ -385,7 +376,7 @@ const SingleOrderPage = () => {
               <FiTruck className="h-5 w-5" />
               Shipping Method
             </h2>
-            
+
             <div className="text-sm">
               <span className="capitalize text-gray-900">
                 {currentOrder.shippingMethod || 'Standard Shipping'}
@@ -400,7 +391,7 @@ const SingleOrderPage = () => {
                 <FiCreditCard className="h-5 w-5" />
                 Payment Information
               </h2>
-              
+
               <div className="space-y-3 text-sm">
                 <div>
                   <span className="text-gray-600 block">Payment Intent ID</span>

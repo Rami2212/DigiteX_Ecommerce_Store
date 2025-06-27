@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  FiMenu, 
-  FiUser, 
-  FiLogOut, 
-  FiSettings, 
+import {
+  FiMenu,
+  FiUser,
+  FiLogOut,
+  FiSettings,
   FiBell,
   FiChevronDown,
   FiSearch
@@ -54,7 +54,7 @@ const AdminHeader = ({ onToggleSidebar, sidebarOpen }) => {
           >
             <FiMenu className="h-5 w-5" />
           </button>
-          
+
           <div className="flex items-center">
             <Logo size="small" />
             <span className="ml-2 text-xl font-semibold text-gray-900">
@@ -112,12 +112,16 @@ const AdminHeader = ({ onToggleSidebar, sidebarOpen }) => {
               className="flex items-center space-x-3 p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
             >
               <div className="flex items-center space-x-3">
-                <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
-                  <FiUser className="h-4 w-4 text-gray-600" />
-                </div>
+                <img
+                  src={user?.profileImage || '/default-avatar.png'}
+                  alt="User Avatar"
+                  className="h-8 w-8 rounded-full object-cover"
+                />
                 <div className="hidden md:block text-left">
                   <div className="text-sm font-medium text-gray-900">
-                    {user?.name || 'Admin User'}
+                    {(user?.firstName || user?.lastName)
+                      ? `${user?.firstName || ''} ${user?.lastName || ''}`.trim()
+                      : 'Admin User'}
                   </div>
                   <div className="text-xs text-gray-500">
                     {user?.email || 'admin@example.com'}

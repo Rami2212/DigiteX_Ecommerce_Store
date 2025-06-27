@@ -1,5 +1,5 @@
-// UserStatsPage.jsx - Updated to use separate calculations
-import React, { useState, useEffect } from 'react';
+// UserStatsPage.jsx - Fixed multiple loading issue
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   HiOutlineShoppingBag,
@@ -21,66 +21,90 @@ import {
   HiOutlineCog
 } from 'react-icons/hi';
 import { motion } from 'framer-motion';
-import { useAuth } from '../../hooks/useAuth';
-import { useOrder } from '../../hooks/useOrder';
-import { useWishlist } from '../../hooks/useWishlist';
-import { UserStatsCalculations } from './userStatsCalculations';
+import { useAuth } from '../../../hooks/useAuth';
+import { useOrder } from '../../../hooks/useOrder';
+import { useWishlist } from '../../../hooks/useWishlist';
+import { UserStatsCalculations } from './UserStatsCalculations';
 
 const UserStatsPage = () => {
   const { user } = useAuth();
   const { userOrders, getUserOrders } = useOrder();
   const { wishlist, getWishlist } = useWishlist();
-
-  const [stats, setStats] = useState({
-    totalOrders: 0,
-    totalSpent: 0,
-    averageOrderValue: 0,
-    totalItemsPurchased: 0,
-    ordersByStatus: {
-      pending: 0,
-      processing: 0,
-      shipped: 0,
-      delivered: 0,
-      cancelled: 0
-    },
-    ordersThisMonth: 0,
-    ordersThisYear: 0,
-    spentThisMonth: 0,
-    spentThisYear: 0,
-    favoriteShoppingDay: '',
-    averageTimeBetweenOrders: 0,
-    totalSavings: 0,
-    discountOrders: 0,
-    wishlistItems: 0,
-    wishlistValue: 0,
-    memberSince: null,
-    accountAge: 0,
-    orderHistory: []
-  });
-
+  
   const [timeframe, setTimeframe] = useState('all');
-  const [isInitialized, setIsInitialized] = useState(false);
+  
+  // Use useRef to track loading state without causing re-renders
+  const loadedRef = useRef({ orders: false, wishlist: false });
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Load data once on mount using useRef to prevent multiple calls
   useEffect(() => {
-    if (!isInitialized) {
-      getUserOrders(1, 100);
-      getWishlist();
-      setIsInitialized(true);
-    }
-  }, [isInitialized]);
+    const loadData = async () => {
+      try {
+        // Only load if not already loaded
+        if (!loadedRef.current.orders) {
+          await getUserOrders(1, 100);
+          loadedRef.current.orders = true;
+        }
+        
+        if (!loadedRef.current.wishlist) {
+          await getWishlist();
+          loadedRef.current.wishlist = true;
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  useEffect(() => {
-    if (userOrders && userOrders.length > 0 && isInitialized) {
-      // Use the separate calculations module
-      const calculatedStats = UserStatsCalculations.calculateUserStats(
+    loadData();
+  }, []); // Empty dependency array - runs only once on mount
+
+  // Memoized stats calculation
+  const stats = useMemo(() => {
+    // Add debug logging to see when this recalculates
+    console.log('Recalculating stats...', { 
+      hasOrders: !!userOrders, 
+      hasWishlist: !!wishlist, 
+      timeframe 
+    });
+
+    if (userOrders !== undefined) {
+      return UserStatsCalculations.calculateUserStats(
         userOrders, 
         wishlist, 
         user, 
         timeframe
       );
-      setStats(calculatedStats);
     }
-  }, [userOrders, wishlist, timeframe, isInitialized, user]);
+    return {
+      totalOrders: 0,
+      totalSpent: 0,
+      averageOrderValue: 0,
+      totalItemsPurchased: 0,
+      ordersByStatus: {
+        pending: 0,
+        processing: 0,
+        shipped: 0,
+        delivered: 0,
+        cancelled: 0
+      },
+      ordersThisMonth: 0,
+      ordersThisYear: 0,
+      spentThisMonth: 0,
+      spentThisYear: 0,
+      favoriteShoppingDay: '',
+      averageTimeBetweenOrders: 0,
+      totalSavings: 0,
+      discountOrders: 0,
+      wishlistItems: 0,
+      wishlistValue: 0,
+      memberSince: null,
+      accountAge: 0,
+      orderHistory: []
+    };
+  }, [userOrders, wishlist, user, timeframe]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -109,7 +133,7 @@ const UserStatsPage = () => {
           <Icon className={`h-6 w-6 ${color}`} />
         </div>
         <div>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
+          <p className="text-xl font-bold text-gray-900 dark:text-white">{value}</p>
           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</p>
           {subtitle && (
             <p className="text-xs text-gray-500 dark:text-gray-500">{subtitle}</p>
@@ -252,6 +276,18 @@ const UserStatsPage = () => {
       </div>
     );
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading your statistics...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.div

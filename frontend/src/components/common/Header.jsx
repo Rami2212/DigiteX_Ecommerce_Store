@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   HiOutlineSearch,
   HiOutlineShoppingCart,
@@ -9,19 +9,146 @@ import {
   HiOutlineHeart,
   HiOutlineSun,
   HiOutlineMoon,
-  HiChevronDown
+  HiChevronDown,
+  HiOutlineArrowRight
 } from 'react-icons/hi';
 import {
   FiLogOut,
   FiSettings,
   FiPackage
 } from 'react-icons/fi';
+import { motion, AnimatePresence } from 'framer-motion';
 import Logo from './Logo';
 import { useAuth } from '../../hooks/useAuth';
 import { useCategory } from '../../hooks/useCategory';
 import { useCart } from '../../hooks/useCart';
 import { useTheme } from '../../hooks/useTheme';
+import { useProduct } from '../../hooks/useProduct';
 
+// Search Suggestions Component
+const SearchSuggestions = ({ products = [], searchQuery, onSelect, isVisible, onClose }) => {
+  const navigate = useNavigate();
+  
+  const suggestions = React.useMemo(() => {
+    if (!searchQuery.trim() || !products.length) return [];
+    
+    const query = searchQuery.toLowerCase();
+    const productSuggestions = new Set();
+    const categorySuggestions = new Set();
+    
+    products.forEach(product => {
+      // Add product name suggestions
+      if (product.name?.toLowerCase().includes(query)) {
+        productSuggestions.add({
+          type: 'product',
+          text: product.name,
+          data: product
+        });
+      }
+      
+      // Add category suggestions
+      if (product.category?.name?.toLowerCase().includes(query)) {
+        categorySuggestions.add({
+          type: 'category',
+          text: product.category.name,
+          data: product.category
+        });
+      }
+    });
+    
+    return [
+      ...Array.from(productSuggestions).slice(0, 4),
+      ...Array.from(categorySuggestions).slice(0, 3)
+    ].slice(0, 6);
+  }, [products, searchQuery]);
+
+  const handleSuggestionClick = (suggestion) => {
+    if (suggestion.type === 'product') {
+      navigate(`/product/${suggestion.data._id}`);
+    } else if (suggestion.type === 'category') {
+      navigate(`/products?category=${suggestion.data._id}`);
+    }
+    onSelect(suggestion.text);
+    onClose();
+  };
+
+  const handleViewAllResults = () => {
+    navigate(`/products?search=${encodeURIComponent(searchQuery)}`);
+    onClose();
+  };
+
+  if (!isVisible || suggestions.length === 0) return null;
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto"
+      >
+        <div className="p-2">
+          {suggestions.map((suggestion, index) => (
+            <button
+              key={index}
+              onClick={() => handleSuggestionClick(suggestion)}
+              className="w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0">
+                  {suggestion.type === 'product' ? (
+                    <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                      <FiPackage className="h-4 w-4 text-primary" />
+                    </div>
+                  ) : (
+                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                      <HiOutlineMenu className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-primary transition-colors">
+                    {suggestion.text}
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+                    {suggestion.type}
+                    {suggestion.type === 'product' && suggestion.data.category ? 
+                      ` • ${suggestion.data.category.name}` : ''
+                    }
+                  </div>
+                </div>
+                <HiOutlineArrowRight className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors" />
+              </div>
+            </button>
+          ))}
+          
+          {/* View All Results */}
+          <div className="border-t border-gray-200 dark:border-gray-700 mt-2 pt-2">
+            <button
+              onClick={handleViewAllResults}
+              className="w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                  <HiOutlineSearch className="h-4 w-4 text-green-600 dark:text-green-400" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-primary transition-colors">
+                    View all results for "{searchQuery}"
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    See all products matching your search
+                  </div>
+                </div>
+                <HiOutlineArrowRight className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors" />
+              </div>
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </AnimatePresence>
+  );
+};
 
 // Account Dropdown Component
 const AccountDropdown = ({ isAuthenticated, user, logout }) => {
@@ -157,67 +284,84 @@ const CategoriesMegaMenu = ({ categories = [] }) => {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 px-4 py-2 bg-primary text-white hover:bg-primary-dark rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary"
+        className="flex items-center space-x-2 px-4 py-2 bg-primary text-white hover:bg-primary-dark rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary shadow-md hover:shadow-lg"
       >
         <HiOutlineMenu className="h-5 w-5" />
-        <span>All Categories</span>
+        <span className="font-medium">All Categories</span>
         <HiChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-screen max-w-4xl bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+        <div className="absolute top-full left-0 mt-1 w-screen max-w-3xl bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 p-4">
             {categories.map((category) => (
               <div key={category._id} className="group">
-                <div className="mb-3">
-                  <img
-                    src={category.categoryImage}
-                    alt={category.name}
-                    className="w-24 h-24 object-cover rounded-lg group-hover:scale-105 transition-transform duration-200"
-                  />
-                </div>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
-                  <Link
-                    to={`/category/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {category.name}
-                  </Link>
-                </h3>
-                {category.subCategories && category.subCategories.length > 0 && (
-                  <ul className="space-y-1">
-                    {category.subCategories.slice(0, 4).map((sub, index) => (
-                      <li key={index}>
-                        <Link
-                          to={`/category/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
-                          className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary transition-colors"
-                          onClick={() => setIsOpen(false)}
-                        >
-                          {sub.name || sub}
-                        </Link>
-                      </li>
-                    ))}
-                    {category.subCategories.length > 4 && (
-                      <li>
-                        <Link
-                          to={`/category/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
-                          className="text-sm text-primary hover:text-primary-dark transition-colors font-medium"
-                          onClick={() => setIsOpen(false)}
-                        >
-                          View All ({category.subCategories.length})
-                        </Link>
-                      </li>
-                    )}
-                  </ul>
-                )}
+                <Link
+                  to={`/category/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
+                  onClick={() => setIsOpen(false)}
+                  className="block p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 border border-transparent hover:border-primary/20"
+                >
+                  <div className="flex items-start space-x-3">
+                    {/* Category Image */}
+                    <div className="flex-shrink-0">
+                      <div className="w-20 h-20 p-2 bg-white rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-500 group-hover:border-primary transition-colors duration-200">
+                        <img
+                          src={category.categoryImage}
+                          alt={category.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* Category Info */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-primary transition-colors text-sm">
+                        {category.name}
+                      </h3>
+                      {category.subCategories && category.subCategories.length > 0 && (
+                        <ul className="space-y-0.5">
+                          {category.subCategories.slice(0, 3).map((sub, index) => (
+                            <li key={index}>
+                              <span className="text-xs text-gray-500 dark:text-gray-400 hover:text-primary transition-colors cursor-pointer">
+                                {sub.name || sub}
+                              </span>
+                            </li>
+                          ))}
+                          {category.subCategories.length > 3 && (
+                            <li>
+                              <span className="text-xs text-primary hover:text-primary-dark transition-colors font-medium cursor-pointer">
+                                +{category.subCategories.length - 3} more
+                              </span>
+                            </li>
+                          )}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
+                </Link>
               </div>
             ))}
             {categories.length === 0 && (
-              <div className="col-span-full text-center py-8 text-gray-500 dark:text-gray-400">
-                No categories available
+              <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">
+                <HiOutlineMenu className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p className="text-sm">No categories available</p>
               </div>
             )}
           </div>
+          
+          {/* Footer */}
+          {categories.length > 0 && (
+            <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-4 py-3">
+              <Link
+                to="/categories"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center justify-center space-x-2 text-primary hover:text-primary-dark transition-colors font-medium text-sm"
+              >
+                <span>View All Categories</span>
+                <HiOutlineArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -226,18 +370,23 @@ const CategoriesMegaMenu = ({ categories = [] }) => {
 
 // Main Header Component
 const Header = () => {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [cartCount, setCartCount] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchRef = useRef(null);
 
   const { isAuthenticated, user, logout } = useAuth();
   const { categories, getCategories } = useCategory();
   const { getCart, itemCount, cartItems } = useCart();
   const { theme, toggle } = useTheme();
+  const { products, getProducts } = useProduct();
 
-  // Load categories on component mount
+  // Load categories and products on component mount
   useEffect(() => {
     getCategories();
+    getProducts(1, 100); // Get products for search suggestions
     
     if (isAuthenticated) {
       getCart();
@@ -249,14 +398,43 @@ const Header = () => {
     setCartCount(cartItemQuantity);
   }, [itemCount, cartItems]);
 
+  // Handle click outside search to close suggestions
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      console.log('Searching for:', searchQuery);
-      // Add your search logic here
+      navigate(`/products?search=${encodeURIComponent(searchQuery)}`);
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleSearchInputChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    setShowSuggestions(value.trim().length > 0);
+  };
+
+  const handleSuggestionSelect = (suggestion) => {
+    setSearchQuery(suggestion);
+    setShowSuggestions(false);
+  };
+
+  const handleSearchFocus = () => {
+    if (searchQuery.trim()) {
+      setShowSuggestions(true);
     }
   };
 
@@ -303,11 +481,12 @@ const Header = () => {
 
           {/* Search Bar - Hidden on mobile */}
           <div className="hidden md:flex flex-grow mx-8">
-            <div className="relative w-full">
+            <div className="relative w-full" ref={searchRef}>
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={handleSearchInputChange}
+                onFocus={handleSearchFocus}
                 placeholder="Search for laptops, accessories..."
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
@@ -318,6 +497,15 @@ const Header = () => {
               >
                 <HiOutlineSearch className="h-5 w-5" />
               </button>
+
+              {/* Search Suggestions */}
+              <SearchSuggestions
+                products={products || []}
+                searchQuery={searchQuery}
+                onSelect={handleSuggestionSelect}
+                isVisible={showSuggestions}
+                onClose={() => setShowSuggestions(false)}
+              />
             </div>
           </div>
 
@@ -374,12 +562,48 @@ const Header = () => {
         handleSearch={handleSearch}
         theme={theme}
         toggleDarkMode={toggle}
+        products={products || []}
       />
     </header>
   );
 };
 
-const NavigationBar = ({ isMenuOpen, toggleMenu, categories, searchQuery, setSearchQuery, handleSearch, theme, toggleDarkMode }) => {
+const NavigationBar = ({ isMenuOpen, toggleMenu, categories, searchQuery, setSearchQuery, handleSearch, theme, toggleDarkMode, products }) => {
+  const navigate = useNavigate();
+  const [showMobileSuggestions, setShowMobileSuggestions] = useState(false);
+  const mobileSearchRef = useRef(null);
+
+  // Handle click outside mobile search to close suggestions
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (mobileSearchRef.current && !mobileSearchRef.current.contains(event.target)) {
+        setShowMobileSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleMobileSearch = () => {
+    if (searchQuery.trim()) {
+      navigate(`/products?search=${encodeURIComponent(searchQuery)}`);
+      setShowMobileSuggestions(false);
+      toggleMenu(); // Close mobile menu
+    }
+  };
+
+  const handleMobileSearchInputChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    setShowMobileSuggestions(value.trim().length > 0);
+  };
+
+  const handleMobileSuggestionSelect = (suggestion) => {
+    setSearchQuery(suggestion);
+    setShowMobileSuggestions(false);
+  };
+
   return (
     <nav className="bg-white dark:bg-gray-800 border-t border-b border-gray-200 dark:border-gray-700 transition-colors">
       {/* Desktop Navigation */}
@@ -454,21 +678,31 @@ const NavigationBar = ({ isMenuOpen, toggleMenu, categories, searchQuery, setSea
 
         {/* Mobile Search */}
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="relative">
+          <div className="relative" ref={mobileSearchRef}>
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleMobileSearchInputChange}
+              onFocus={() => searchQuery.trim() && setShowMobileSuggestions(true)}
               placeholder="Search..."
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              onKeyPress={(e) => e.key === 'Enter' && handleMobileSearch()}
             />
             <button
-              onClick={handleSearch}
+              onClick={handleMobileSearch}
               className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-primary transition-colors"
             >
               <HiOutlineSearch className="h-5 w-5" />
             </button>
+
+            {/* Mobile Search Suggestions */}
+            <SearchSuggestions
+              products={products}
+              searchQuery={searchQuery}
+              onSelect={handleMobileSuggestionSelect}
+              isVisible={showMobileSuggestions}
+              onClose={() => setShowMobileSuggestions(false)}
+            />
           </div>
         </div>
 
@@ -485,17 +719,7 @@ const NavigationBar = ({ isMenuOpen, toggleMenu, categories, searchQuery, setSea
                   Home
                 </Link>
               </li>
-
-              <li>
-                <Link
-                  to="/products"
-                  className="flex items-center font-medium text-gray-800 dark:text-gray-200 hover:text-primary transition-colors"
-                  onClick={toggleMenu}
-                >
-                  Products
-                </Link>
-              </li>
-
+              
               <li>
                 <Link
                   to="/products"

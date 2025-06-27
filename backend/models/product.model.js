@@ -40,6 +40,18 @@ const productSchema = new mongoose.Schema({
         ref: 'Category',
         required: true,
     },
+    addons: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Addon',
+    }],
+    stock: {
+        type: Number,
+        default: 0,
+    },
+    views: {
+        type: Number,
+        default: 0,
+    }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Product', productSchema);

@@ -113,7 +113,7 @@ const ProductsPage = () => {
           {renderProductImage(product)}
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          {product.category?.name || '-'}
+          {categories.find(cat => cat._id === product.category)?.name || 'Uncategorized'}
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
           ${product.price?.toFixed(2) || '0.00'}

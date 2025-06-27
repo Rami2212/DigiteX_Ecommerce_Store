@@ -44,7 +44,7 @@ const NotFoundPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4">
+    <div className="py-24 bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4">
       <motion.div
         className="max-w-2xl mx-auto text-center"
         variants={containerVariants}

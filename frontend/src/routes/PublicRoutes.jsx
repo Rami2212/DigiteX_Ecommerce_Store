@@ -14,10 +14,10 @@ import ForgotPassword from '../pages/auth/ForgotPassword';
 import ResetPassword from '../pages/auth/ResetPassword';
 import AuthSuccess from '../pages/auth/AuthSuccess';
 import AuthFailed from '../pages/auth/AuthFailed';
-import CategoriesPage from '../pages/public/Categories';
-import CategoryProductsPage from '../pages/public/CategoryProduct';
-import CartPage from '../pages/public/Cart';
-import CheckoutPage from '../pages/public/Checkout';
+import CategoriesPage from '../pages/public/categories/Categories';
+import CategoryProductsPage from '../pages/public/categories/CategoryProduct';
+import CartPage from '../pages/public/payment/Cart';
+import CheckoutPage from '../pages/public/payment/Checkout';
 import OrderSuccessPage from '../pages/public/payment/OrderSuccess';
 import PaymentFailedPage from '../pages/public/payment/PaymentFailed';
 import RetryPaymentPage from '../pages/public/payment/RetryPayment';
@@ -28,6 +28,7 @@ import HomePage from '../pages/public/Home';
 import NotFoundPage from '../pages/public/NotFoundPage';
 import AboutPage from '../pages/public/About';
 import ContactPage from '../pages/public/Contact';
+import PopupManager from '../components/popups/PopupManager';
 
 const PublicRoutes = () => {
   const location = useLocation(); // required for AnimatePresence
@@ -67,6 +68,7 @@ const PublicRoutes = () => {
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
+      <PopupManager />
     </AnimatePresence>
   );
 };

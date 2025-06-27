@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FiSave, FiX, FiPlus, FiTrash2 } from 'react-icons/fi';
 import { useProduct } from '../../../hooks/useProduct';
 import { useCategory } from '../../../hooks/useCategory';
+import { useAddon } from '../../../hooks/useAddon';
 import Button from '../../../components/common/Button';
 import Input from '../../../components/common/Input';
 import Textarea from '../../../components/common/Textarea';
@@ -12,6 +13,7 @@ const AddProductPage = () => {
   const navigate = useNavigate();
   const { addProduct, isLoading } = useProduct();
   const { categories, getCategories } = useCategory();
+  const { addons, getAddons } = useAddon();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -20,6 +22,8 @@ const AddProductPage = () => {
     price: '',
     salePrice: '',
     category: '',
+    addons: [],
+    stock: 0,
     productImage: null,
     productImages: [],
     variants: [{ color: '', variantImage: null }]
@@ -32,6 +36,7 @@ const AddProductPage = () => {
 
   useEffect(() => {
     getCategories();
+    getAddons();
   }, []);
 
   const handleInputChange = (e) => {
@@ -45,6 +50,15 @@ const AddProductPage = () => {
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
+  };
+
+  const handleAddonToggle = (addonId) => {
+    setFormData(prev => ({
+      ...prev,
+      addons: prev.addons.includes(addonId)
+        ? prev.addons.filter(id => id !== addonId)
+        : [...prev.addons, addonId]
+    }));
   };
 
   const handleVariantChange = (index, field, value) => {
@@ -196,6 +210,14 @@ const AddProductPage = () => {
       }
       submitData.append('category', formData.category);
       
+      // Append addons
+      if (formData.addons.length > 0) {
+        formData.addons.forEach(addonId => {
+          submitData.append('addons[]', addonId);
+        });
+      }
+      submitData.append('stock', formData.stock);
+      
       // Append main product image
       if (formData.productImage) {
         submitData.append('productImage', formData.productImage);
@@ -289,7 +311,7 @@ const AddProductPage = () => {
                 error={errors.shortDescription}
                 required
                 disabled={isLoading}
-                rows={3}
+                rows={5}
                 maxLength={200}
               />
             </div>
@@ -305,6 +327,19 @@ const AddProductPage = () => {
                 value={formData.salePrice}
                 onChange={handleInputChange}
                 error={errors.salePrice}
+                disabled={isLoading}
+              />
+
+              <Input
+                name="stock"
+                label="Stock Quantity"
+                type="number"
+                placeholder="Enter stock quantity"
+                min="0"
+                value={formData.stock}
+                onChange={handleInputChange}
+                error={errors.stock}
+                required
                 disabled={isLoading}
               />
             </div>
@@ -341,6 +376,65 @@ const AddProductPage = () => {
                 </option>
               ))}
             </Select>
+          </div>
+
+          {/* Addons Section */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Product Addons (Optional)
+            </label>
+            
+            {addons && addons.length > 0 ? (
+              <div className="space-y-2">
+                {addons.map(addon => (
+                  <div
+                    key={addon._id}
+                    className="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50"
+                  >
+                    <input
+                      type="checkbox"
+                      id={`addon-${addon._id}`}
+                      checked={formData.addons.includes(addon._id)}
+                      onChange={() => handleAddonToggle(addon._id)}
+                      disabled={isLoading}
+                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                    />
+                    <label
+                      htmlFor={`addon-${addon._id}`}
+                      className="ml-3 flex-1 cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">
+                            {addon.name}
+                          </p>
+                          {addon.description && (
+                            <p className="text-sm text-gray-500">
+                              {addon.description}
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-sm font-medium text-gray-900">
+                          ${addon.price}
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-sm text-gray-500 italic">
+                No addons available. You can create addons from the addons management page.
+              </div>
+            )}
+            
+            {formData.addons.length > 0 && (
+              <div className="mt-3 p-3 bg-blue-50 rounded-md">
+                <p className="text-sm text-blue-800">
+                  <strong>{formData.addons.length}</strong> addon{formData.addons.length > 1 ? 's' : ''} selected
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Main Product Image */}

@@ -71,6 +71,7 @@ exports.loginUser = async (identifier, password) => {
             role: user.role,
             isVerified: user.isVerified,
             profileImage: user.profileImage || '',
+            createdAt: user.createdAt,
         },
     };
 };
