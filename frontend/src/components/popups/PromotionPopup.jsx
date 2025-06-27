@@ -38,13 +38,13 @@ const PromotionPopup = () => {
         }
       }
       
-      // Show popup if not shown in last 4 hours
+      // Show popup if not shown in last hour
       if (!lastShown) {
         return true;
       }
       
-      const fourHoursInMs = 0 * 60 * 60 * 1000;
-      return currentTime - parseInt(lastShown) > fourHoursInMs;
+      const oneHourInMs = 1 * 60 * 60 * 1000; // Changed from 0 to 1
+      return currentTime - parseInt(lastShown) > oneHourInMs;
     };
 
     // Show popup after 3 seconds delay

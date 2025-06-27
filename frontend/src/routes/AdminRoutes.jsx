@@ -6,7 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import AdminLayout from '../layouts/AdminLayout';
 import AdminLogin from '../pages/admin/AdminLogin';
 import AdminDashboard from '../pages/admin/AdminDashboard';
-import CategoriesPage from '../pages/admin/categories/categories';
+import CategoriesPage from '../pages/admin/categories/Categories';
 import AddCategoryPage from '../pages/admin/categories/AddCategory';
 import EditCategoryPage from '../pages/admin/categories/EditCategory';
 import UsersPage from '../pages/admin/users/Users';
