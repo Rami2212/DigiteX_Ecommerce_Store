@@ -3,6 +3,7 @@ FROM node:22-alpine AS backend-build
 WORKDIR /app/backend
 COPY backend/package*.json ./
 RUN npm ci --only=production
+RUN npm install -g nodemon
 COPY backend/ ./
 
 FROM node:22-alpine AS frontend-build
