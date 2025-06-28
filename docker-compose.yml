@@ -10,4 +10,4 @@ services:
       - "8080:80"
     environment:
       - NODE_ENV=production
-    image: digitex:latest
+    image: digitex-app:latest
