@@ -2,8 +2,10 @@ import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.BACKEND_URL;
 
+// In your frontend API file
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  //baseURL: 'http://localhost:5000/api',
+  baseURL: '/api/api',
   headers: {
     'Content-Type': 'application/json',
   },
