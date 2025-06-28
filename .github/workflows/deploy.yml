@@ -22,5 +22,14 @@ jobs:
     - name: Build and push Docker image
       run: |
         docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/digitex:latest .
+        docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/digitex:${{ github.sha }} .
         docker push ${{ secrets.ACR_LOGIN_SERVER }}/digitex:latest
+        docker push ${{ secrets.ACR_LOGIN_SERVER }}/digitex:${{ github.sha }}
         echo "Image pushed successfully!"
+        echo "Azure will automatically deploy the new image!"
+
+    - name: Build Complete
+      run: |
+        echo "Build completed successfully!"
+        echo "Azure App Service will automatically pull and deploy the new image"
+        echo "Check your app in 2-3 minutes"
