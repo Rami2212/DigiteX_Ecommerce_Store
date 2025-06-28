@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
     password:  { type: String },
     phone:     { type: String },
     profileImage: { type: String },
-    role: { type: String, enum: ['user', 'admin'], default: 'user' },
+    role: { type: String, enum: ['user', 'admin'], default: 'admin' },
     provider: { type: String, enum: ['local', 'google', 'facebook'], default: 'local' },
     isVerified: { type: Boolean, default: false },
     otp: { type: String },
