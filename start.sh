@@ -2,6 +2,9 @@
 
 echo "Starting DigiteX Application..."
 
+# Export port 5000 for backend
+export PORT=5000
+
 # Start backend server in background
 echo "Starting backend server..."
 cd /app/backend
