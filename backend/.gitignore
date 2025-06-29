@@ -25,6 +25,9 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Uploaded files
+uploads/
+
 # Build output
 dist/
 build/

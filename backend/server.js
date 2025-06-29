@@ -22,11 +22,17 @@ const contactRoutes = require('./routes/contact.routes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const uploadsPath = process.env.UPLOADS_PATH || path.join(__dirname, 'assets/uploads');
+if (!fs.existsSync(uploadsPath)) {
+  fs.mkdirSync(uploadsPath, { recursive: true });
+  console.log(`Created uploads directory: ${uploadsPath}`);
+}
+
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-app.use('/assets/uploads', express.static(path.join(__dirname, 'assets/uploads')));
+app.use('/assets/uploads', express.static(uploadsPath));
 
 app.use(session({
     secret: process.env.SESSION_SECRET,
