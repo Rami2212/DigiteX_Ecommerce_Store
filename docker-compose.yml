@@ -8,12 +8,6 @@ services:
     restart: unless-stopped
     ports:
       - "8080:80"
-    volumes:
-      - uploads_data:/app/backend/assets/uploads
     environment:
       - NODE_ENV=production
     image: digitex-app:latest
-
-volumes:
-  uploads_data:
-    driver: local
