@@ -25,7 +25,7 @@ import { useProduct } from '../../../hooks/useProduct';
 import { useCategory } from '../../../hooks/useCategory';
 import { useAddon } from '../../../hooks/useAddon';
 import Button from '../../../components/common/Button';
-import * as Icons from 'react-icons/fi'; // Import all icons from react-icons/fi
+import * as Icons from 'react-icons/fi';
 
 const SingleProductPage = () => {
   const { productId } = useParams();
@@ -116,10 +116,10 @@ const SingleProductPage = () => {
 
   // Update local wishlist state when product changes (no variant)
   useEffect(() => {
-    if (selectedProduct) {
+    if (selectedProduct && isAuthenticated) {
       setIsInWishlist(isItemInWishlist(selectedProduct._id));
     }
-  }, [selectedProduct, isItemInWishlist]);
+  }, [selectedProduct, isItemInWishlist, isAuthenticated]);
 
   // Update main image when product, variant, or selected image changes
   useEffect(() => {
@@ -175,8 +175,8 @@ const SingleProductPage = () => {
   const [cartUpdateTrigger, setCartUpdateTrigger] = useState(0);
 
   // Recalculate cart status when cart updates or trigger changes
-  const inCart = product ? isItemInCart(product._id, selectedVariant?.color) : false;
-  const cartQuantity = product ? getItemQuantity(product._id, selectedVariant?.color) : 0;
+  const inCart = product && isAuthenticated ? isItemInCart(product._id, selectedVariant?.color) : false;
+  const cartQuantity = product && isAuthenticated ? getItemQuantity(product._id, selectedVariant?.color) : 0;
 
   // Stock management - FIXED: Use product stock, not variant stock
   const currentStock = product?.stock || 0;
@@ -218,7 +218,12 @@ const SingleProductPage = () => {
   };
 
   const handleAddToCart = async () => {
-    if (!isAuthenticated || isOutOfStock) {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+
+    if (isOutOfStock) {
       return;
     }
 
@@ -258,6 +263,7 @@ const SingleProductPage = () => {
 
   const handleToggleWishlist = async () => {
     if (!isAuthenticated) {
+      navigate('/login');
       return;
     }
 
@@ -669,7 +675,7 @@ const SingleProductPage = () => {
             {/* Quantity & All Action Buttons - Mobile: Second Row */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               {/* Quantity Selector - FIXED: Hide when out of stock */}
-              {!isOutOfStock && (
+              {!isOutOfStock && isAuthenticated && (
                 <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg w-fit">
                   <button
                     onClick={() => handleQuantityChange(quantity - 1)}
@@ -692,8 +698,17 @@ const SingleProductPage = () => {
               )}
 
               <div className="flex gap-3 flex-1">
-                {/* Add to Cart Button - FIXED: Check stock properly */}
-                {isOutOfStock ? (
+                {/* Add to Cart Button */}
+                {!isAuthenticated ? (
+                  <Button
+                    onClick={() => navigate('/login')}
+                    variant="primary"
+                    className="flex-1 py-2"
+                    icon={<FiShoppingCart className="h-4 w-4" />}
+                  >
+                    Login to Add to Cart
+                  </Button>
+                ) : isOutOfStock ? (
                   <Button
                     disabled={true}
                     variant="outline"
@@ -724,21 +739,23 @@ const SingleProductPage = () => {
                   </Button>
                 )}
 
-                {/* Wishlist Button (smaller) */}
-                <Button
-                  onClick={handleToggleWishlist}
-                  disabled={wishlistLoading}
-                  variant="outline"
-                  className="p-2"
-                  isLoading={wishlistLoading}
-                >
-                  <FiHeart
-                    className={`h-4 w-4 ${isInWishlist
-                      ? 'text-red-500 fill-current'
-                      : 'text-gray-500'
-                      }`}
-                  />
-                </Button>
+                {/* Wishlist Button (smaller) - Only show if authenticated */}
+                {isAuthenticated && (
+                  <Button
+                    onClick={handleToggleWishlist}
+                    disabled={wishlistLoading}
+                    variant="outline"
+                    className="p-2"
+                    isLoading={wishlistLoading}
+                  >
+                    <FiHeart
+                      className={`h-4 w-4 ${isInWishlist
+                        ? 'text-red-500 fill-current'
+                        : 'text-gray-500'
+                        }`}
+                    />
+                  </Button>
+                )}
 
                 {/* Share Button (smaller) */}
                 <Button
