@@ -39,21 +39,21 @@ const ProductCard = ({ product }) => {
 
   // Update local cart state whenever cart changes or variant selection changes
   useEffect(() => {
-    if (product) {
+    if (product && isAuthenticated) {
       const cartStatus = selectedVariant 
         ? isItemInCart(product._id, selectedVariant.color)
         : isItemInCart(product._id, null);
       setInCart(cartStatus);
     }
-  }, [product, selectedVariant, isItemInCart]);
+  }, [product, selectedVariant, isItemInCart, isAuthenticated]);
 
   // Update local wishlist state when wishlist data changes
   useEffect(() => {
-    if (product && wishlist) {
+    if (product && wishlist && isAuthenticated) {
       const wishlistStatus = isItemInWishlist(product._id);
       setIsInWishlist(wishlistStatus);
     }
-  }, [product, wishlist, isItemInWishlist]);
+  }, [product, wishlist, isItemInWishlist, isAuthenticated]);
 
   // Load wishlist data ONCE when component mounts and user is authenticated
   // Remove getWishlist from dependencies to prevent infinite loop
@@ -101,7 +101,7 @@ const ProductCard = ({ product }) => {
     e.stopPropagation();
     
     if (!isAuthenticated) {
-      // You might want to show a login modal or redirect
+      navigate('/login');
       return;
     }
 
@@ -132,7 +132,7 @@ const ProductCard = ({ product }) => {
     e.stopPropagation();
     
     if (!isAuthenticated) {
-      // You might want to show a login modal or redirect
+      navigate('/login');
       return;
     }
 
@@ -159,8 +159,10 @@ const ProductCard = ({ product }) => {
     setQuantity(1); // Reset quantity when variant changes
     
     // Update cart status for new variant
-    const cartStatus = isItemInCart(product._id, variant.color);
-    setInCart(cartStatus);
+    if (isAuthenticated) {
+      const cartStatus = isItemInCart(product._id, variant.color);
+      setInCart(cartStatus);
+    }
   };
 
   // Show main product image first, then variant image if selected
@@ -222,20 +224,22 @@ const ProductCard = ({ product }) => {
           animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : 20 }}
           transition={{ duration: 0.2 }}
         >
-          {/* Wishlist Button */}
-          <button
-            onClick={handleToggleWishlist}
-            disabled={wishlistLoading}
-            className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
-          >
-            <FiHeart 
-              className={`h-5 w-5 transition-colors ${
-                isInWishlist 
-                  ? 'text-red-500 fill-current' 
-                  : 'text-gray-600 dark:text-gray-400 hover:text-red-500'
-              }`} 
-            />
-          </button>
+          {/* Wishlist Button - Only show if authenticated */}
+          {isAuthenticated && (
+            <button
+              onClick={handleToggleWishlist}
+              disabled={wishlistLoading}
+              className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+            >
+              <FiHeart 
+                className={`h-5 w-5 transition-colors ${
+                  isInWishlist 
+                    ? 'text-red-500 fill-current' 
+                    : 'text-gray-600 dark:text-gray-400 hover:text-red-500'
+                }`} 
+              />
+            </button>
+          )}
 
           {/* Quick View Button */}
           <Link
@@ -262,7 +266,17 @@ const ProductCard = ({ product }) => {
           animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 20 }}
           transition={{ duration: 0.2 }}
         >
-          {!inCart ? (
+          {!isAuthenticated ? (
+            <Link to="/login">
+              <Button
+                variant="primary"
+                className="w-full py-2 text-sm font-medium shadow-lg"
+                icon={<FiShoppingCart className="h-4 w-4" />}
+              >
+                Login to Add to Cart
+              </Button>
+            </Link>
+          ) : !inCart ? (
             <Button
               onClick={handleAddToCart}
               disabled={product.stock === 0 || cartLoading}
@@ -362,7 +376,17 @@ const ProductCard = ({ product }) => {
 
         {/* Mobile Actions */}
         <div className="flex gap-2 md:hidden">
-          {!inCart ? (
+          {!isAuthenticated ? (
+            <Link to="/login" className="flex-1">
+              <Button
+                variant="primary"
+                className="w-full py-2 text-sm"
+                icon={<FiShoppingCart className="h-4 w-4" />}
+              >
+                Login to Add to Cart
+              </Button>
+            </Link>
+          ) : !inCart ? (
             <Button
               onClick={handleAddToCart}
               disabled={product.stock === 0 || cartLoading}
@@ -384,19 +408,22 @@ const ProductCard = ({ product }) => {
             </Button>
           )}
           
-          <button
-            onClick={handleToggleWishlist}
-            disabled={wishlistLoading}
-            className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          >
-            <FiHeart 
-              className={`h-5 w-5 ${
-                isInWishlist 
-                  ? 'text-red-500 fill-current' 
-                  : 'text-gray-500 dark:text-gray-400'
-              }`} 
-            />
-          </button>
+          {/* Mobile Wishlist Button - Only show if authenticated */}
+          {isAuthenticated && (
+            <button
+              onClick={handleToggleWishlist}
+              disabled={wishlistLoading}
+              className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              <FiHeart 
+                className={`h-5 w-5 ${
+                  isInWishlist 
+                    ? 'text-red-500 fill-current' 
+                    : 'text-gray-500 dark:text-gray-400'
+                }`} 
+              />
+            </button>
+          )}
         </div>
       </div>
     </motion.div>
