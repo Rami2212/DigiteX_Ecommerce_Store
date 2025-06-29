@@ -219,7 +219,7 @@ const SingleProductPage = () => {
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate('/auth/login');
       return;
     }
 
@@ -263,7 +263,7 @@ const SingleProductPage = () => {
 
   const handleToggleWishlist = async () => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate('/auth/login');
       return;
     }
 
@@ -701,7 +701,7 @@ const SingleProductPage = () => {
                 {/* Add to Cart Button */}
                 {!isAuthenticated ? (
                   <Button
-                    onClick={() => navigate('/login')}
+                    onClick={() => navigate('/auth/login')}
                     variant="primary"
                     className="flex-1 py-2"
                     icon={<FiShoppingCart className="h-4 w-4" />}

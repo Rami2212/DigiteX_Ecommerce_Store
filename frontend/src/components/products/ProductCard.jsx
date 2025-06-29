@@ -101,7 +101,7 @@ const ProductCard = ({ product }) => {
     e.stopPropagation();
     
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate('/auth/login');
       return;
     }
 
@@ -132,7 +132,7 @@ const ProductCard = ({ product }) => {
     e.stopPropagation();
     
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate('/auth/login');
       return;
     }
 
@@ -267,7 +267,7 @@ const ProductCard = ({ product }) => {
           transition={{ duration: 0.2 }}
         >
           {!isAuthenticated ? (
-            <Link to="/login">
+            <Link to="/auth/login">
               <Button
                 variant="primary"
                 className="w-full py-2 text-sm font-medium shadow-lg"
@@ -377,7 +377,7 @@ const ProductCard = ({ product }) => {
         {/* Mobile Actions */}
         <div className="flex gap-2 md:hidden">
           {!isAuthenticated ? (
-            <Link to="/login" className="flex-1">
+            <Link to="/auth/login" className="flex-1">
               <Button
                 variant="primary"
                 className="w-full py-2 text-sm"
