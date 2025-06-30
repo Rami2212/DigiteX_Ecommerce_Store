@@ -2,6 +2,8 @@
 
 A comprehensive Node.js backend API for DigiteX laptop store with full ecommerce functionality including user management, product catalog, cart operations, order processing, and Stripe payment integration.
 
+🌐 **Live Demo**: [https://digitex-app.azurewebsites.net/](https://digitex-app.azurewebsites.net/)
+
 ## Features
 
 - **User Authentication & Authorization**
