@@ -2,6 +2,8 @@
 
 A modern, responsive React frontend for DigiteX laptop store with comprehensive ecommerce functionality, admin dashboard, and seamless user experience built with Vite and Tailwind CSS.
 
+🌐 **Live Demo**: [https://digitex-app.azurewebsites.net/](https://digitex-app.azurewebsites.net/)
+
 ## Features
 
 - **Modern React Architecture**
