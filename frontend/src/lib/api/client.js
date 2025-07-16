@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKENDURL;
 
-const baseURL = BACKEND_URL || 'api/api';
+const baseURL =  '/api';
 // In your frontend API file
 const api = axios.create({
   baseURL: baseURL,
