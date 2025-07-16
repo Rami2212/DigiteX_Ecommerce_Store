@@ -112,7 +112,7 @@ const RegisterPage = () => {
     };
 
     const handleGoogleRegister = () => {
-        window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/google`;
+        window.location.assign('https://digitex-app.azurewebsites.net/api/auth/google');
     };
 
     const togglePasswordVisibility = () => {

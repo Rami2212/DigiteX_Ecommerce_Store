@@ -77,7 +77,7 @@ const LoginPage = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = `https://digitex-app.azurewebsites.net/api/auth/google`;
+    window.location.assign('https://digitex-app.azurewebsites.net/api/auth/google');
   };
 
   const togglePasswordVisibility = () => {
